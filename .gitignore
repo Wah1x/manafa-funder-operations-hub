@@ -1,3 +1,8 @@
 .claude/
 .DS_Store
 Thumbs.db
+# Plaintext source of the encrypted page — NEVER commit (public repo).
+app.src.html
+app_marked.html
+ct.b64
+*.enc
