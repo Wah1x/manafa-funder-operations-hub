@@ -6,288 +6,463 @@
 <title>Manafa — Funder Availability Control Tower</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#F3F5FA; --card:#FFFFFF; --ink:#0B1024; --mut:#5A6379; --line:#E3E7F2;
-  --blue:#0029CC; --blue-soft:#E8EDFF; --navy:#0B1533; --navy2:#13224E;
-  --open:#0E8A4D; --open-bg:#E4F5EC;
-  --queue:#1247D6; --queue-bg:#E8EEFC;
-  --closed:#7A8095; --closed-bg:#EEF0F6;
-  --reject:#B3382F; --reject-bg:#F9E9E7;
-  --warn:#9A6B00; --warn-bg:#FCF3DF;
-  --evening:#5B3FD4; --evening-bg:#EEEAFB;
-  --elig:#0C7C88; --elig-bg:#E2F3F5;
-  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --sans:'Alexandria',system-ui,-apple-system,'Segoe UI',sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.55}
-a{color:var(--blue);text-decoration:none}
-a:hover{text-decoration:underline}
-button{font-family:var(--sans)}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+  :root {
+    --background:#FFFFFF; --foreground:#09090B;
+    --card:#FFFFFF; --card-foreground:#09090B;
+    --popover:#FFFFFF; --popover-foreground:#09090B;
+    --primary:#18181B; --primary-foreground:#FAFAFA;
+    --secondary:#F4F4F5; --secondary-foreground:#18181B;
+    --muted:#F4F4F5; --muted-foreground:#71717A;
+    --accent:#F4F4F5; --accent-foreground:#18181B;
+    --destructive:#DC2626;
+    --border:#E4E4E7; --input:#E4E4E7; --ring:#A1A1AA;
+    --sidebar:#FAFAFA; --sidebar-foreground:#09090B;
+    --sidebar-primary:#18181B; --sidebar-primary-foreground:#FAFAFA;
+    --sidebar-accent:#F0F0F1; --sidebar-accent-foreground:#18181B;
+    --sidebar-border:#E4E4E7; --sidebar-ring:#A1A1AA;
+    /* semantic status accents (the one place colour is allowed) */
+    --st-open:#059669;   --st-open-bg:#ECFDF5;   --st-open-bd:#A7F3D0;
+    --st-queue:#2563EB;  --st-queue-bg:#EFF6FF;  --st-queue-bd:#BFDBFE;
+    --st-gap:#B45309;    --st-gap-bg:#FFFBEB;    --st-gap-bd:#FDE68A;
+    --st-reject:#DC2626; --st-reject-bg:#FEF2F2; --st-reject-bd:#FECACA;
+    --st-closed:#71717A; --st-closed-bg:#F4F4F5; --st-closed-bd:#E4E4E7;
+    --radius:0.625rem;
+    --sidebar-width:16rem; --sidebar-width-icon:3rem; --sidebar-width-mobile:18rem; --header-height:3.5rem;
+  }
+  .dark {
+    --background:#09090B; --foreground:#FAFAFA;
+    --card:#0C0C0F; --card-foreground:#FAFAFA;
+    --popover:#0C0C0F; --popover-foreground:#FAFAFA;
+    --primary:#FAFAFA; --primary-foreground:#18181B;
+    --secondary:#18181B; --secondary-foreground:#FAFAFA;
+    --muted:#18181B; --muted-foreground:#A1A1AA;
+    --accent:#1F1F23; --accent-foreground:#FAFAFA;
+    --destructive:#EF4444;
+    --border:rgba(255,255,255,.10); --input:rgba(255,255,255,.14); --ring:#52525B;
+    --sidebar:#0C0C0F; --sidebar-foreground:#FAFAFA;
+    --sidebar-primary:#FAFAFA; --sidebar-primary-foreground:#18181B;
+    --sidebar-accent:#1F1F23; --sidebar-accent-foreground:#FAFAFA;
+    --sidebar-border:rgba(255,255,255,.10); --sidebar-ring:#52525B;
+    --st-open:#34D399;   --st-open-bg:rgba(16,185,129,.13);  --st-open-bd:rgba(16,185,129,.30);
+    --st-queue:#60A5FA;  --st-queue-bg:rgba(59,130,246,.14); --st-queue-bd:rgba(59,130,246,.32);
+    --st-gap:#FBBF24;    --st-gap-bg:rgba(245,158,11,.13);   --st-gap-bd:rgba(245,158,11,.30);
+    --st-reject:#F87171; --st-reject-bg:rgba(239,68,68,.13); --st-reject-bd:rgba(239,68,68,.32);
+    --st-closed:#A1A1AA; --st-closed-bg:rgba(255,255,255,.05);--st-closed-bd:rgba(255,255,255,.12);
+  }
 
-/* ───── Header: the control band ───── */
-header.band{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding:18px 24px 0;position:relative;overflow:hidden}
-header.band::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:var(--blue)}
-.band-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;max-width:1280px;margin:0 auto}
-.brandchip{background:#fff;border-radius:10px;padding:6px 12px;display:inline-flex;align-items:center}
-.brandchip img{height:26px;width:auto;display:block}
-.band-title h1{font-size:19px;font-weight:600;letter-spacing:.2px}
-.band-title p{font-size:11.5px;color:#9FACD6;font-weight:300;margin-top:1px}
-.clock{margin-left:auto;text-align:right}
-.clock .t{font-family:var(--mono);font-size:34px;font-weight:600;letter-spacing:1px;line-height:1;font-variant-numeric:tabular-nums}
-.clock .t small{font-size:16px;color:#8FA0D4;font-weight:400}
-.clock .d{font-size:11.5px;color:#9FACD6;margin-top:3px}
-.chiprow{display:flex;gap:8px;flex-wrap:wrap;max-width:1280px;margin:14px auto 0;padding-bottom:14px}
-.fchip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:5px 13px 5px 9px;font-size:12px;cursor:pointer;color:#fff;transition:background .15s}
-.fchip:hover{background:rgba(255,255,255,.14)}
-.fchip .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.fchip b{font-weight:600;letter-spacing:.3px}
-.fchip small{color:#AAB6DD;font-weight:300;font-size:11px}
-.dot.s-open{background:#35C97C;box-shadow:0 0 7px #35C97C99}
-.dot.s-queue{background:#5D8DF6}
-.dot.s-closed{background:#5E6682}
-.dot.s-reject{background:#E4695F}
-.dot.s-notlive{background:#8C93A8}
-.dot.s-elig{background:#3BC2CF}
-.dot.s-gap{background:#8C93A8}
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  html { scroll-behavior:smooth; }
+  body { font-family:"Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size:14px; line-height:1.5; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+  @media (prefers-reduced-motion: reduce){ * { transition:none !important; animation:none !important; } }
+  a { color:inherit; }
+  .mono { font-family:"Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-/* ───── Tabs ───── */
-nav.tabs{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
-.tabs-inner{max-width:1280px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;padding:0 16px}
-.tab{background:none;border:none;padding:13px 16px 11px;font-size:13.5px;font-weight:500;color:var(--mut);cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap}
-.tab:hover{color:var(--ink)}
-.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+  .shell { display:flex; min-height:100vh; }
 
-main{max-width:1280px;margin:0 auto;padding:22px 16px 60px}
-section.view{display:none}
-section.view.active{display:block}
-h2.vt{font-size:17px;font-weight:600;margin-bottom:4px}
-p.vs{font-size:12.5px;color:var(--mut);margin-bottom:16px;font-weight:300}
+  /* ── sidebar ─────────────────────────────────────────── */
+  .sidebar { width:var(--sidebar-width); flex-shrink:0; background:var(--sidebar); color:var(--sidebar-foreground);
+    border-right:1px solid var(--sidebar-border); display:flex; flex-direction:column; transition:width .2s ease-linear; overflow:hidden; }
+  .sidebar-header, .sidebar-footer { padding:8px; }
+  .sidebar-content { flex:1; overflow-y:auto; overflow-x:hidden; padding:8px; display:flex; flex-direction:column; gap:4px; }
+  .sidebar-content::-webkit-scrollbar { width:6px; }
+  .sidebar-content::-webkit-scrollbar-thumb { background:var(--border); border-radius:99px; }
 
-/* ───── Checker ───── */
-.controls{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:18px}
-.ctl{display:flex;flex-direction:column;gap:4px}
-.ctl label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--mut)}
-.ctl input,.ctl select{font-family:var(--mono);font-size:14px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#FAFBFE;color:var(--ink)}
-.btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer}
-.btn:hover{background:#0022A8}
-.btn.ghost{background:#fff;color:var(--blue);border:1.5px solid var(--blue)}
-.livepill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--open);font-weight:600;background:var(--open-bg);border-radius:99px;padding:5px 12px}
-.livepill .pulse{width:8px;height:8px;border-radius:50%;background:var(--open);animation:pulse 1.6s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-@media (prefers-reduced-motion: reduce){.livepill .pulse{animation:none}}
-.asof{font-size:11px;color:var(--mut);margin-left:auto;align-self:center;font-weight:300}
+  .menu-btn { display:flex; align-items:center; gap:8px; width:100%; min-height:32px; padding:0 8px; border:none;
+    background:transparent; cursor:pointer; color:inherit; font:inherit; text-align:left;
+    border-radius:calc(var(--radius) - 2px); transition:background .12s ease; white-space:nowrap; }
+  .menu-btn:hover { background:var(--sidebar-accent); color:var(--sidebar-accent-foreground); }
+  .menu-btn:focus-visible { outline:2px solid var(--sidebar-ring); outline-offset:1px; }
+  .menu-btn.lg { min-height:48px; padding:8px; }
+  .menu-btn.active { background:var(--sidebar-accent); color:var(--sidebar-accent-foreground); font-weight:500; }
+  .menu-btn .icon { flex-shrink:0; width:16px; height:16px; display:grid; place-items:center; }
+  .menu-btn .icon svg { width:16px; height:16px; }
+  .menu-btn .label { flex:1; overflow:hidden; text-overflow:ellipsis; }
+  .menu-btn .m-badge { font-family:"Geist Mono",monospace; font-size:10px; color:var(--muted-foreground);
+    border:1px solid var(--border); border-radius:99px; padding:1px 6px; }
+  .menu-btn .chev-right { width:16px; height:16px; transition:transform .15s ease; opacity:.7; }
+  .menu-btn[aria-expanded="true"] .chev-right { transform:rotate(90deg); }
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
-.vcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;position:relative}
-.vcard.dim{opacity:.55}
-.vhead{display:flex;align-items:center;gap:12px}
-.vhead img{width:auto;display:block}
-.vhead .pill{margin-left:auto}
-.pill{font-size:10.5px;font-weight:700;letter-spacing:.7px;padding:4px 11px;border-radius:99px;flex:none}
-.pill.p-open{background:var(--open-bg);color:var(--open)}
-.pill.p-queue{background:var(--queue-bg);color:var(--queue)}
-.pill.p-closed{background:var(--closed-bg);color:var(--closed)}
-.pill.p-reject{background:var(--reject-bg);color:var(--reject)}
-.pill.p-notlive{background:#E9EAF0;color:#6B7186}
-.pill.p-elig{background:var(--elig-bg);color:var(--elig)}
-.pill.p-gap{background:var(--closed-bg);color:var(--closed)}
-.vhl{font-size:14.5px;font-weight:600;line-height:1.35}
-.vdt{font-size:12px;color:var(--mut);font-weight:300;line-height:1.5;margin-top:-4px}
-.vrows{border-top:1px solid var(--line);padding-top:9px;display:flex;flex-direction:column;gap:5px}
-.vrow{display:flex;gap:10px;font-size:12.5px}
-.vrow b{flex:none;width:58px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);padding-top:2px}
-.vrow span{font-family:var(--mono);font-size:12px}
-.vnext{font-size:12px;font-weight:600;color:var(--blue);background:var(--blue-soft);border-radius:8px;padding:6px 11px;font-family:var(--mono)}
-.vflag{font-size:11px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:6px 10px;line-height:1.45}
-.vmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
-.mtag{font-size:10.5px;color:var(--mut);background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:2.5px 8px;font-weight:500}
+  .brand-square { width:32px; height:32px; flex-shrink:0; border-radius:calc(var(--radius) - 2px);
+    background:var(--sidebar-primary); color:var(--sidebar-primary-foreground); display:grid; place-items:center; overflow:hidden; }
+  .brand-square svg { width:16px; height:16px; }
+  .brand-square img { width:22px; height:22px; object-fit:contain; filter:brightness(0) invert(1); }
+  .avatar { width:32px; height:32px; flex-shrink:0; border-radius:calc(var(--radius) - 2px);
+    background:var(--primary); color:var(--primary-foreground); display:grid; place-items:center; font-size:12px; font-weight:600; }
+  .brand-meta { flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.25; }
+  .brand-meta .t1 { font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .brand-meta .t2 { font-size:12px; color:var(--muted-foreground); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .chev-updown { width:16px; height:16px; opacity:.6; flex-shrink:0; }
 
-/* ───── Timeline ───── */
-.tl-wrap{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;overflow-x:auto}
-.tl-inner{min-width:760px}
-.tl-hours{display:flex;margin-left:120px;position:relative;height:18px}
-.tl-hours span{flex:1;font-family:var(--mono);font-size:9.5px;color:var(--mut);border-left:1px solid var(--line);padding-left:3px}
-.tl-row{display:flex;align-items:center;margin-top:9px}
-.tl-name{width:120px;flex:none;display:flex;align-items:center;gap:8px;padding-right:10px}
-.tl-name img{width:auto;display:block}
-.tl-name b{font-size:11px;font-weight:600}
-.tl-track{flex:1;height:34px;position:relative;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(100%/24 - 1px),var(--line) calc(100%/24 - 1px),var(--line) calc(100%/24))}
-.tl-track{background-color:#FAFBFE;border-radius:6px;overflow:visible}
-.seg{position:absolute;top:4px;bottom:4px;border-radius:5px;font-size:9px;font-weight:600;display:flex;align-items:center;padding:0 6px;overflow:hidden;white-space:nowrap;cursor:default}
-.seg.g-open{background:var(--open-bg);color:var(--open);border:1px solid #BEE6CF}
-.seg.g-queue{background:var(--queue-bg);color:var(--queue);border:1px solid #C6D6F8}
-.seg.g-evening{background:var(--evening-bg);color:var(--evening);border:1px solid #D8CFF5}
-.seg.g-closed{background:transparent;color:#A6ABBE;border:none}
-.seg.g-gap{background:repeating-linear-gradient(45deg,#EEF0F6 0,#EEF0F6 5px,#E4E7F0 5px,#E4E7F0 10px);color:var(--closed);border:1px solid var(--line)}
-.seg.g-reject{background:repeating-linear-gradient(45deg,var(--reject-bg) 0,var(--reject-bg) 5px,#F3D9D6 5px,#F3D9D6 10px);color:var(--reject);border:1px solid #ECC7C2}
-.seg.g-elig{background:var(--elig-bg);color:var(--elig);border:1px solid #BFE3E7}
-.seg.g-notlive{background:#F0F1F5;color:#8C93A8;border:1px dashed #C9CDDA}
-.tick{position:absolute;top:-4px;bottom:-4px;width:0;border-left:1.5px dashed var(--ink);opacity:.45}
-.tick i{position:absolute;top:-13px;left:-1px;transform:translateX(-50%);font-style:normal;font-family:var(--mono);font-size:8.5px;color:var(--ink);background:var(--paper);padding:0 3px;border-radius:3px;white-space:nowrap}
-.needle{position:absolute;top:0;bottom:0;width:2px;background:#E4372C;z-index:5;box-shadow:0 0 6px #E4372C66}
-.needle::before{content:"";position:absolute;top:-5px;left:-4px;border:5px solid transparent;border-top-color:#E4372C}
-.tl-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;font-size:11px;color:var(--mut)}
-.tl-legend span{display:inline-flex;align-items:center;gap:6px}
-.tl-legend i{width:14px;height:10px;border-radius:3px;display:inline-block}
+  .group-label { font-size:12px; font-weight:500; color:var(--muted-foreground); padding:8px 8px 4px; height:32px; display:flex; align-items:center; }
+  .submenu { display:flex; flex-direction:column; gap:2px; margin-left:14px; padding-left:10px;
+    border-left:1px solid var(--sidebar-border); overflow:hidden; }
+  .submenu .menu-btn { min-height:28px; font-size:13px; color:var(--muted-foreground); }
+  .submenu .menu-btn:hover, .submenu .menu-btn.active { color:var(--sidebar-accent-foreground); }
+  .sidebar-sep { height:1px; background:var(--sidebar-border); margin:4px 0; }
 
-/* ───── Profiles ───── */
-.fsel{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.fbtn{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:9px 15px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:border-color .15s}
-.fbtn img{width:auto;display:block}
-.fbtn.active{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
-.fbtn b{font-size:12px;font-weight:600}
-.profile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
-.p-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid var(--line)}
-.p-head img{width:auto;display:block}
-.p-head h3{font-size:18px;font-weight:600}
-.p-head .sub{font-size:12px;color:var(--mut);font-weight:300}
-.p-badges{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-.p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:16px 0}
-.p-kv{background:var(--paper);border-radius:10px;padding:11px 14px}
-.p-kv b{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--mut);margin-bottom:3px}
-.p-kv span{font-size:12.5px;line-height:1.45;display:block}
-h4.ph{font-size:13px;font-weight:600;margin:20px 0 8px;display:flex;align-items:center;gap:8px}
-h4.ph::before{content:"";width:4px;height:15px;background:var(--blue);border-radius:2px;display:inline-block}
-table.dt{width:100%;border-collapse:collapse;font-size:12px}
-table.dt th{text-align:left;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);padding:7px 10px;border-bottom:1.5px solid var(--line);white-space:nowrap}
-table.dt td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-table.dt td.mono, .mono{font-family:var(--mono);font-size:11.5px}
-table.dt tr:last-child td{border-bottom:none}
-.dir-out{color:var(--blue);font-weight:600}
-.dir-in{color:var(--elig);font-weight:600}
-ul.plain{list-style:none;display:flex;flex-direction:column;gap:6px}
-ul.plain li{font-size:12.5px;padding-left:16px;position:relative;line-height:1.5}
-ul.plain li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--blue)}
-ul.plain.gotcha li::before{background:var(--warn)}
-.src{font-size:11px;color:var(--mut);margin-top:18px;padding-top:12px;border-top:1px solid var(--line);line-height:1.7}
+  @media (min-width:768px){
+    .shell[data-collapsed="true"] .sidebar { width:calc(var(--sidebar-width-icon) + 1px); }
+    .shell[data-collapsed="true"] .label,
+    .shell[data-collapsed="true"] .brand-meta,
+    .shell[data-collapsed="true"] .chev-updown,
+    .shell[data-collapsed="true"] .m-badge,
+    .shell[data-collapsed="true"] .chev-right,
+    .shell[data-collapsed="true"] .group-label > span,
+    .shell[data-collapsed="true"] .submenu { display:none; }
+    .shell[data-collapsed="true"] .menu-btn { justify-content:center; padding:0; }
+    .shell[data-collapsed="true"] .menu-btn.lg { padding:8px 0; }
+    .shell[data-collapsed="true"] .group-label { justify-content:center; }
+  }
 
-/* ───── Reference ───── */
-.ref-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;align-items:start}
-.ref-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
-.ref-card.wide{grid-column:1/-1}
-.ref-card h3{font-size:14px;font-weight:600;margin-bottom:3px}
-.ref-card .note{font-size:11px;color:var(--mut);font-weight:300;margin-bottom:12px;line-height:1.5}
-.limit-note{font-size:11px;background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:7px 11px;margin-bottom:12px;line-height:1.5}
-td.num{font-family:var(--mono);text-align:right;font-size:11.5px}
-tr.total td{font-weight:600;border-top:1.5px solid var(--line)}
-.hol{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;padding:4px 0;border-bottom:1px dashed var(--line)}
-.hol:last-child{border-bottom:none}
-.hol .hd{font-family:var(--mono);font-size:11px;flex:none}
-.hol .approx{color:var(--warn);font-weight:600}
-.wm td{font-size:10.5px;line-height:1.4;padding:6px 8px}
-.wm td.c-open{background:var(--open-bg);color:#0A6B3C}
-.wm td.c-queue{background:var(--queue-bg);color:#0D3AA8}
-.wm td.c-closed{background:var(--closed-bg);color:#6B7186}
-.wm td.c-reject{background:var(--reject-bg);color:var(--reject)}
-.wm td.c-elig{background:var(--elig-bg);color:#0A616B}
-.wm td.c-notlive{background:#F0F1F5;color:#8C93A8}
+  .mobile-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:45; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .mobile-overlay.open { opacity:1; pointer-events:auto; }
+  @media (max-width:767px){
+    .sidebar { position:fixed; top:0; left:0; height:100%; width:var(--sidebar-width-mobile); transform:translateX(-100%);
+      z-index:50; transition:transform .25s ease; box-shadow:4px 0 24px rgba(0,0,0,.12); }
+    .shell[data-mobile-open="true"] .sidebar { transform:translateX(0); }
+  }
 
-/* ───── Open items ───── */
-.oi{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:12px;padding:16px 18px;margin-bottom:12px}
-.oi h3{font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:baseline}
-.oi h3 .oid{font-family:var(--mono);font-size:11px;color:var(--warn);flex:none}
-.oi p{font-size:12.5px;margin-top:6px;line-height:1.55}
-.oi p b{font-weight:600}
-.oi .assume{background:var(--warn-bg);border-radius:8px;padding:7px 11px;font-size:12px;margin-top:8px;color:#6E4E00}
+  /* ── inset / header ──────────────────────────────────── */
+  .inset { flex:1; display:flex; flex-direction:column; min-width:0; background:var(--background); }
+  .header { height:var(--header-height); flex-shrink:0; display:flex; align-items:center; gap:8px; padding:0 16px;
+    border-bottom:1px solid var(--border); background:color-mix(in srgb, var(--background) 82%, transparent); backdrop-filter:blur(8px);
+    position:sticky; top:0; z-index:30; }
+  .icon-btn { width:32px; height:32px; flex-shrink:0; border:none; background:transparent; border-radius:calc(var(--radius) - 2px);
+    cursor:pointer; color:var(--foreground); display:grid; place-items:center; position:relative; transition:background .12s ease; }
+  .icon-btn:hover { background:var(--accent); }
+  .icon-btn:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }
+  .icon-btn svg { width:18px; height:18px; }
+  .v-sep { width:1px; height:20px; background:var(--border); margin:0 4px; }
 
-footer{max-width:1280px;margin:0 auto;padding:0 16px 40px;font-size:11px;color:var(--mut);line-height:1.7;font-weight:300}
-footer b{font-weight:600}
-@media (max-width:640px){
-  .clock .t{font-size:26px}
-  .band-title h1{font-size:16px}
-  .vrow b{width:52px}
-}
+  .breadcrumb { display:flex; align-items:center; gap:8px; font-size:14px; min-width:0; }
+  .breadcrumb .muted, .breadcrumb .sep { color:var(--muted-foreground); }
+  .breadcrumb a { color:var(--muted-foreground); text-decoration:none; cursor:pointer; }
+  .breadcrumb a:hover { color:var(--foreground); }
+  @media (max-width:640px){ .breadcrumb .crumb-hide { display:none; } }
+
+  .header-spacer { margin-left:auto; }
+  .header-actions { display:flex; align-items:center; gap:6px; }
+  .clock { display:flex; align-items:center; gap:8px; padding:0 4px; }
+  .clock .ct { font-family:"Geist Mono",monospace; font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; letter-spacing:.3px; }
+  .clock .ct small { color:var(--muted-foreground); font-size:12px; }
+  .clock .cd { font-size:11px; color:var(--muted-foreground); }
+  @media (max-width:720px){ .clock .cd { display:none; } }
+  .live-pill { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:var(--st-open);
+    background:var(--st-open-bg); border:1px solid var(--st-open-bd); border-radius:99px; padding:3px 9px; }
+  .live-pill .pulse { width:7px; height:7px; border-radius:50%; background:var(--st-open); animation:pulse 1.6s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .main { flex:1; padding:20px; overflow:auto; }
+
+  /* ── page primitives ─────────────────────────────────── */
+  .page { max-width:1200px; margin:0 auto; }
+  .page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .page-head h1 { font-size:20px; font-weight:600; display:flex; align-items:center; gap:10px; letter-spacing:-.01em; }
+  .page-head .sub { color:var(--muted-foreground); font-size:13px; margin-top:4px; max-width:74ch; line-height:1.55; }
+  .uc-tag { font-family:"Geist Mono", monospace; font-size:10px; font-weight:500; letter-spacing:.02em;
+    color:var(--muted-foreground); border:1px solid var(--border); border-radius:6px; padding:2px 6px; }
+
+  .btn { height:34px; padding:0 12px; border:1px solid var(--border); background:var(--background); color:var(--foreground);
+    border-radius:calc(var(--radius) - 2px); font:inherit; font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; transition:background .12s ease; }
+  .btn:hover { background:var(--accent); }
+  .btn svg { width:15px; height:15px; }
+  .btn.primary { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
+  .btn.primary:hover { opacity:.9; }
+  .btn.sm { height:28px; padding:0 8px; font-size:12px; }
+  .link { color:var(--foreground); font-weight:500; cursor:pointer; text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb, var(--foreground) 30%, transparent); }
+  .link:hover { border-bottom-color:var(--foreground); }
+
+  /* form controls */
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-foreground); }
+  .field input, .field select { height:36px; padding:0 12px; border:1px solid var(--input); background:var(--background);
+    color:var(--foreground); border-radius:calc(var(--radius) - 2px); font:inherit; font-size:13px; font-family:"Geist Mono",monospace; outline:none; transition:border-color .12s, box-shadow .12s; }
+  .field select { appearance:none; padding-right:30px; cursor:pointer; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2371717A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 9px center; }
+  .field input:focus, .field select:focus { border-color:var(--ring); box-shadow:0 0 0 3px color-mix(in srgb, var(--ring) 30%, transparent); }
+
+  .controls { display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; border:1px solid var(--border); border-radius:var(--radius);
+    background:var(--card); padding:14px 16px; margin-bottom:18px; }
+  .controls .spacer { margin-left:auto; }
+  .as-of { font-size:12px; color:var(--muted-foreground); align-self:center; }
+
+  /* ── KPI ─────────────────────────────────────────────── */
+  .kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+  @media (max-width:900px){ .kpi-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .kpi-grid { grid-template-columns:1fr; } }
+  .kpi { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); padding:14px 16px; }
+  .kpi .k-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .kpi .k-label { font-size:12px; color:var(--muted-foreground); font-weight:500; }
+  .kpi .k-dot { width:8px; height:8px; border-radius:50%; }
+  .kpi .k-count { font-size:26px; font-weight:600; letter-spacing:-.02em; margin-top:6px; font-variant-numeric:tabular-nums; }
+  .kpi .k-sub { font-size:12px; color:var(--muted-foreground); margin-top:4px; }
+
+  /* ── badges ──────────────────────────────────────────── */
+  .badge { display:inline-flex; align-items:center; gap:6px; height:22px; padding:0 9px; border-radius:999px;
+    font-size:12px; font-weight:500; border:1px solid var(--border); background:var(--secondary); color:var(--foreground); white-space:nowrap; }
+  .badge .bdot { width:6px; height:6px; border-radius:50%; background:currentColor; opacity:.8; flex-shrink:0; }
+  .badge[data-tone="solid"]  { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
+  .badge[data-tone="strong"] { background:transparent; border-color:var(--foreground); }
+  .badge[data-tone="muted"]  { background:var(--muted); color:var(--muted-foreground); }
+
+  /* semantic status badge */
+  .stbadge { display:inline-flex; align-items:center; gap:6px; height:24px; padding:0 10px; border-radius:999px;
+    font-size:12px; font-weight:600; letter-spacing:.01em; white-space:nowrap;
+    color:var(--st-c); background:var(--st-bg); border:1px solid var(--st-bd); }
+  .stbadge .sdot { width:7px; height:7px; border-radius:50%; background:var(--st-c); flex-shrink:0; }
+  .stbadge[data-st="open"]   { --st-c:var(--st-open);   --st-bg:var(--st-open-bg);   --st-bd:var(--st-open-bd); }
+  .stbadge[data-st="queue"]  { --st-c:var(--st-queue);  --st-bg:var(--st-queue-bg);  --st-bd:var(--st-queue-bd); }
+  .stbadge[data-st="gap"]    { --st-c:var(--st-gap);    --st-bg:var(--st-gap-bg);    --st-bd:var(--st-gap-bd); }
+  .stbadge[data-st="reject"] { --st-c:var(--st-reject); --st-bg:var(--st-reject-bg); --st-bd:var(--st-reject-bd); }
+  .stbadge[data-st="closed"], .stbadge[data-st="notlive"] { --st-c:var(--st-closed); --st-bg:var(--st-closed-bg); --st-bd:var(--st-closed-bd); }
+  .stbadge[data-st="notlive"] { border-style:dashed; }
+
+  /* ── availability cards ──────────────────────────────── */
+  .fcards { display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:14px; }
+  .fcard { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); padding:16px; display:flex; flex-direction:column; gap:11px; position:relative; }
+  .fcard.state-open { border-left:3px solid var(--st-open); }
+  .fcard.state-queue { border-left:3px solid var(--st-queue); }
+  .fcard.state-gap { border-left:3px solid var(--st-gap); }
+  .fcard.state-reject { border-left:3px solid var(--st-reject); }
+  .fcard.dim { opacity:.5; }
+  .fcard .fc-head { display:flex; align-items:center; gap:10px; }
+  .fcard .fc-logo { height:22px; display:flex; align-items:center; }
+  .fcard .fc-logo img { height:22px; width:auto; display:block; }
+  .dark .fcard .fc-logo img { filter:brightness(0) invert(1); opacity:.92; }
+  .fcard .fc-head .stbadge { margin-left:auto; }
+  .fcard .fc-hl { font-size:14px; font-weight:600; line-height:1.4; }
+  .fcard .fc-dt { font-size:12.5px; color:var(--muted-foreground); line-height:1.5; }
+  .fcard .fc-rows { display:flex; flex-direction:column; gap:0; border-top:1px solid var(--border); }
+  .fcard .fc-row { display:flex; gap:10px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  .fcard .fc-row:last-child { border-bottom:none; }
+  .fcard .fc-row b { font-weight:500; color:var(--muted-foreground); width:56px; flex-shrink:0; }
+  .fcard .fc-row span { font-weight:500; }
+  .fcard .fc-next { font-size:12px; color:var(--muted-foreground); background:var(--muted); border-radius:8px; padding:7px 10px; }
+  .fcard .fc-next b { color:var(--foreground); font-weight:600; }
+  .fcard .fc-flag { font-size:12px; color:var(--st-gap); background:var(--st-gap-bg); border:1px solid var(--st-gap-bd); border-radius:8px; padding:6px 9px; line-height:1.45; }
+  .fcard .fc-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:1px; }
+  .fcard .fc-meta span { font-size:11px; color:var(--muted-foreground); border:1px solid var(--border); border-radius:6px; padding:2px 7px; }
+
+  /* ── cards / detail ──────────────────────────────────── */
+  .card { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); }
+  .card + .card { margin-top:14px; }
+  .card-head { padding:12px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .card-body { padding:16px; }
+  .kv { display:grid; grid-template-columns:repeat(3,1fr); gap:14px 20px; }
+  @media (max-width:760px){ .kv { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .kv { grid-template-columns:1fr; } }
+  .kv .kv-k { font-size:11px; color:var(--muted-foreground); margin-bottom:3px; text-transform:uppercase; letter-spacing:.04em; font-weight:500; }
+  .kv .kv-v { font-size:13px; font-weight:500; line-height:1.5; }
+  .kv .kv-v small { color:var(--muted-foreground); font-weight:400; }
+  .plain { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .plain li { font-size:13px; padding-left:20px; position:relative; line-height:1.55; }
+  .plain li::before { content:""; position:absolute; left:2px; top:8px; width:6px; height:6px; border-radius:50%; background:var(--muted-foreground); }
+  .plain.gotcha li::before { content:"!"; width:auto; height:auto; top:0; left:2px; border-radius:0; background:none; color:var(--st-gap); font-weight:700; }
+  .src-line { font-size:12px; color:var(--muted-foreground); line-height:1.7; }
+  .src-line b { color:var(--foreground); }
+  .callout { border:1px solid var(--st-queue-bd); background:var(--st-queue-bg); border-radius:var(--radius); padding:14px 16px; }
+  .callout h4 { font-size:13px; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:7px; color:var(--foreground); }
+  .callout h4 svg { width:16px; height:16px; color:var(--st-queue); }
+
+  /* ── tables ──────────────────────────────────────────── */
+  .table-wrap { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); overflow:hidden; }
+  .table-scroll { overflow-x:auto; }
+  table.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+  table.tbl thead th { text-align:left; font-weight:500; color:var(--muted-foreground); font-size:12px; padding:10px 14px;
+    border-bottom:1px solid var(--border); background:var(--secondary); white-space:nowrap; }
+  table.tbl tbody td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  table.tbl tbody tr:last-child td { border-bottom:none; }
+  table.tbl tbody tr:hover { background:var(--muted); }
+  table.tbl .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  table.tbl .mono { font-family:"Geist Mono",monospace; font-size:12px; white-space:nowrap; }
+  .dir-out { color:var(--foreground); font-weight:500; }
+  .dir-in { color:var(--muted-foreground); }
+  .tbl-note { font-size:12px; color:var(--muted-foreground); padding:10px 14px; border-top:1px solid var(--border); background:var(--secondary); }
+
+  /* week-at-a-glance grid cells */
+  table.wm td { font-size:11.5px; line-height:1.4; white-space:normal; min-width:104px; vertical-align:top; }
+  table.wm td.c-code { font-weight:600; white-space:nowrap; min-width:auto; }
+  .c-open   { color:var(--st-open); }
+  .c-queue  { color:var(--st-queue); }
+  .c-gap, .c-reject { color:var(--st-reject); }
+  .c-closed, .c-notlive { color:var(--muted-foreground); }
+
+  /* ── funder picker (segmented) ───────────────────────── */
+  .fpick { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+  .fpick button { display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 12px; border:1px solid var(--border);
+    background:var(--card); color:var(--foreground); border-radius:calc(var(--radius) - 2px); font:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:background .12s, border-color .12s; }
+  .fpick button:hover { background:var(--accent); }
+  .fpick button.active { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
+  .fpick button img { height:15px; width:auto; }
+  .dark .fpick button img { filter:brightness(0) invert(1); opacity:.9; }
+  .fpick button.active img { filter:brightness(0) invert(1); }
+
+  /* ── two-column grid for reference/detail ────────────── */
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:820px){ .grid2 { grid-template-columns:1fr; } }
+  .hol-row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px dashed var(--border); font-size:12.5px; }
+  .hol-row:last-child { border-bottom:none; }
+  .hol-row .hd { font-family:"Geist Mono",monospace; color:var(--muted-foreground); }
+  .hol-row .approx { color:var(--st-gap); }
+
+  /* ── open items ──────────────────────────────────────── */
+  .oi { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); padding:16px; }
+  .oi + .oi { margin-top:12px; }
+  .oi h3 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:9px; margin-bottom:10px; }
+  .oi .oid { font-family:"Geist Mono",monospace; font-size:11px; color:var(--muted-foreground); border:1px solid var(--border); border-radius:6px; padding:2px 7px; }
+  .oi p { font-size:13px; line-height:1.6; margin-bottom:8px; }
+  .oi p b, .oi .assume b { font-weight:600; }
+  .oi .assume { font-size:13px; line-height:1.6; background:var(--muted); border-left:3px solid var(--foreground); border-radius:8px; padding:9px 12px; margin-bottom:8px; }
+  .oi p.owner { color:var(--muted-foreground); margin-bottom:0; }
+
+  /* ── timeline ────────────────────────────────────────── */
+  .tl-wrap { border:1px solid var(--border); border-radius:var(--radius); background:var(--card); padding:14px 16px; overflow-x:auto; }
+  .tl-inner { min-width:820px; }
+  .tl-hours { display:flex; margin-left:64px; border-bottom:1px solid var(--border); padding-bottom:4px; margin-bottom:8px; }
+  .tl-hours span { flex:1; font-size:10px; color:var(--muted-foreground); font-family:"Geist Mono",monospace; text-align:left; }
+  .tl-row { display:flex; align-items:center; gap:0; height:34px; }
+  .tl-name { width:64px; flex-shrink:0; display:flex; align-items:center; }
+  .tl-name img { height:14px; width:auto; }
+  .dark .tl-name img { filter:brightness(0) invert(1); opacity:.9; }
+  .tl-track { position:relative; flex:1; height:22px; background:var(--muted); border-radius:6px; overflow:hidden; }
+  .seg { position:absolute; top:0; height:22px; display:flex; align-items:center; padding:0 6px; font-size:9.5px; font-weight:500;
+    color:#fff; overflow:hidden; white-space:nowrap; }
+  .seg.g-open { background:var(--st-open); }
+  .seg.g-queue { background:var(--st-queue); }
+  .seg.g-evening { background:#7C3AED; }
+  .seg.g-gap { background:var(--st-gap); }
+  .seg.g-reject { background:var(--st-reject); }
+  .seg.g-closed, .seg.g-notlive { background:transparent; color:var(--muted-foreground); }
+  .tl-track .tick { position:absolute; top:-2px; bottom:-2px; width:0; border-left:1px dashed var(--border); }
+  .tl-track .needle { position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--st-reject); z-index:3; }
+  .tl-legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; padding-top:12px; border-top:1px solid var(--border); }
+  .tl-legend span { display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--muted-foreground); }
+  .tl-legend i { width:14px; height:14px; border-radius:4px; display:inline-block; }
+
+  /* ── dropdowns / menus ───────────────────────────────── */
+  .dropdown { position:fixed; z-index:80; min-width:240px; background:var(--popover); color:var(--popover-foreground);
+    border:1px solid var(--border); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,.16); padding:4px;
+    display:none; flex-direction:column; gap:2px; }
+  .dropdown.open { display:flex; }
+  .dropdown-label { font-size:11px; color:var(--muted-foreground); padding:6px 8px 2px; }
+  .dropdown-sep { height:1px; background:var(--border); margin:4px 0; }
+  .dropdown-item { display:flex; align-items:center; gap:8px; padding:7px 8px; border:none; background:transparent;
+    font:inherit; color:inherit; border-radius:6px; cursor:pointer; text-align:left; width:100%; }
+  .dropdown-item:hover { background:var(--accent); }
+  .dropdown-item svg { width:16px; height:16px; opacity:.85; flex-shrink:0; }
+  .dropdown-item .grow { flex:1; }
+  .dropdown-header { display:flex; align-items:center; gap:8px; padding:8px; }
+
+  /* ── info panel (was build notes) ────────────────────── */
+  .notes-toggle { position:fixed; right:16px; bottom:16px; z-index:40; display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px;
+    background:var(--primary); color:var(--primary-foreground); border:none; border-radius:99px; cursor:pointer; font:inherit; font-weight:500; box-shadow:0 4px 16px rgba(0,0,0,.18); }
+  .notes-toggle svg { width:16px; height:16px; }
+  .notes-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:55; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .notes-overlay.open { opacity:1; pointer-events:auto; }
+  .notes-panel { position:fixed; top:0; right:0; height:100%; width:min(460px,92vw); z-index:60; background:var(--card); color:var(--card-foreground);
+    border-left:1px solid var(--border); transform:translateX(100%); transition:transform .25s ease; display:flex; flex-direction:column; box-shadow:-8px 0 32px rgba(0,0,0,.18); }
+  .notes-panel.open { transform:translateX(0); }
+  .notes-head { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .notes-head h3 { font-size:15px; font-weight:600; }
+  .notes-body { padding:20px; overflow-y:auto; flex:1; }
+  .notes-body h4 { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-foreground); margin:20px 0 8px; }
+  .notes-body h4:first-child { margin-top:0; }
+  .notes-body ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+  .notes-body li { font-size:13px; padding-left:18px; position:relative; line-height:1.55; }
+  .notes-body li::before { content:"\2192"; position:absolute; left:0; color:var(--muted-foreground); }
+  .notes-body code { font-family:"Geist Mono",monospace; font-size:12px; background:var(--muted); padding:1px 5px; border-radius:5px; }
+
+  /* ── toast ───────────────────────────────────────────── */
+  .toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%,12px); z-index:90; background:var(--primary); color:var(--primary-foreground);
+    font-size:13px; font-weight:500; padding:10px 16px; border-radius:99px; box-shadow:0 8px 28px rgba(0,0,0,.28); opacity:0;
+    transition:opacity .2s ease, transform .2s ease; max-width:92vw; text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
 </style>
 </head>
 <body>
+  <div class="shell" id="shell" data-collapsed="false" data-mobile-open="false">
 
-<header class="band">
-  <div class="band-top">
-    <span class="brandchip"><img id="manafaLogo" alt="Manafa"></span>
-    <div class="band-title">
-      <h1>Funder Availability Control Tower</h1>
-      <p>Aramco SCF program · which funder can take this request, right now?</p>
-    </div>
-    <div class="clock">
-      <div class="t" id="clockT">--:--<small>:--</small></div>
-      <div class="d" id="clockD">— · Asia/Riyadh (AST, UTC+3)</div>
+    <!-- ════════ SIDEBAR ════════ -->
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="sidebar-header">
+        <button class="menu-btn lg" title="Manafa · Embedded Finance">
+          <span class="brand-square"><img id="brandLogo" alt="Manafa"></span>
+          <span class="brand-meta"><span class="t1">Funder Control Tower</span><span class="t2">Availability · Aramco SCF</span></span>
+        </button>
+      </div>
+      <nav class="sidebar-content" id="nav"><!-- injected --></nav>
+      <div class="sidebar-footer">
+        <div class="sidebar-sep" style="margin-top:0"></div>
+        <button class="menu-btn lg" title="Embedded Finance BA desk">
+          <span class="avatar">EF</span>
+          <span class="brand-meta"><span class="t1">Embedded Finance</span><span class="t2">BA desk · Manafa</span></span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ════════ INSET ════════ -->
+    <div class="inset">
+      <header class="header">
+        <button class="icon-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar" title="Toggle sidebar (Ctrl/⌘ B)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+        </button>
+        <div class="v-sep"></div>
+        <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb"></nav>
+
+        <div class="header-spacer"></div>
+        <div class="header-actions">
+          <span class="live-pill" id="livePill" title="Tracking the current AST minute"><span class="pulse"></span>LIVE</span>
+          <div class="clock"><span class="ct" id="clockT">--:--<small>:--</small></span><span class="cd" id="clockD">Asia/Riyadh · AST</span></div>
+          <div class="v-sep"></div>
+          <button class="icon-btn" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle light / dark">
+            <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="page" id="view"><!-- injected --></div>
+      </main>
     </div>
   </div>
-  <div class="chiprow" id="chipRow"></div>
-</header>
 
-<nav class="tabs"><div class="tabs-inner">
-  <button class="tab active" data-v="checker">Availability Checker</button>
-  <button class="tab" data-v="timeline">Day Timeline</button>
-  <button class="tab" data-v="profiles">Funder Profiles</button>
-  <button class="tab" data-v="reference">Reference</button>
-  <button class="tab" data-v="openitems">Open Items <span id="oiCount" style="font-family:var(--mono);font-size:10px"></span></button>
-</div></nav>
+  <div class="mobile-overlay" id="mobile-overlay" onclick="closeMobile()"></div>
 
-<main>
-  <section class="view active" id="v-checker">
-    <h2 class="vt">Availability Checker</h2>
-    <p class="vs">Pick any moment and see, per funder, whether a financing request submitted then is accepted, which file it joins, when the supplier gets funded, and which day's rate applies. All times AST (KSA, UTC+3).</p>
-    <div class="controls">
-      <div class="ctl"><label>Date</label><input type="date" id="inDate"></div>
-      <div class="ctl"><label>Time (AST)</label><input type="time" id="inTime"></div>
-      <div class="ctl"><label>Currency</label><select id="inCcy"><option value="ALL">All</option><option value="SAR">SAR</option><option value="USD">USD</option></select></div>
-      <button class="btn ghost" id="btnNow">Reset to now</button>
-      <span class="livepill" id="livePill" style="display:none"><span class="pulse"></span>LIVE — tracking now</span>
-      <span class="asof" id="asOf"></span>
+  <!-- about / traceability panel -->
+  <button class="notes-toggle" onclick="openNotes()" title="About this tool & sources">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+    About
+  </button>
+  <div class="notes-overlay" id="notes-overlay" onclick="closeNotes()"></div>
+  <aside class="notes-panel" id="notes-panel" aria-label="About this tool">
+    <div class="notes-head"><h3>About this tool</h3><button class="icon-btn" onclick="closeNotes()" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>
+    <div class="notes-body">
+      <h4>What this is</h4>
+      <ul>
+        <li>A static reference — <b>not</b> connected to production. No live liquidity, limit utilization, or file status is shown.</li>
+        <li>Timings and rules come from the sources cited on each funder profile.</li>
+        <li>All times are <b>AST</b> (Asia/Riyadh, UTC+3).</li>
+      </ul>
+      <h4>Reading a status</h4>
+      <ul>
+        <li><b>Open</b> — a live sending window right now; funds same-day.</li>
+        <li><b>Queueing</b> — accepted, held for the next scheduled file.</li>
+        <li><b>Closed</b> — no dispatch today. <b>Rejects</b> — actively refused, not held.</li>
+      </ul>
+      <h4>Editing</h4>
+      <ul>
+        <li>Everything shown lives in the <code>DATA</code> block at the top of this file's script — edit cut-offs, holidays, contacts, and limits there; no logic changes needed.</li>
+        <li>Design: shadcn/ui "New York", Geist, monochrome tokens — colour is reserved for availability status.</li>
+      </ul>
+      <h4>Data as of</h4>
+      <ul><li id="notesAsOf">—</li></ul>
     </div>
-    <div class="cards" id="cards"></div>
-  </section>
-
-  <section class="view" id="v-timeline">
-    <h2 class="vt">Day Timeline</h2>
-    <p class="vs">The 24-hour shape of each funder, side by side. Dashed ticks are cut-offs; the red needle is now (shown when viewing today).</p>
-    <div class="controls">
-      <div class="ctl"><label>Date</label><input type="date" id="tlDate"></div>
-      <button class="btn ghost" id="tlToday">Today</button>
-      <span class="asof" id="tlDayLabel"></span>
-    </div>
-    <div class="tl-wrap"><div class="tl-inner" id="tlInner"></div>
-      <div class="tl-legend">
-        <span><i style="background:var(--open-bg);border:1px solid #BEE6CF"></i>Open — live sending window</span>
-        <span><i style="background:var(--queue-bg);border:1px solid #C6D6F8"></i>Collecting for a scheduled file</span>
-        <span><i style="background:var(--evening-bg);border:1px solid #D8CFF5"></i>JPM evening flow (Tenor − 1)</span>
-        <span><i style="background:repeating-linear-gradient(45deg,#EEF0F6 0,#EEF0F6 4px,#E4E7F0 4px,#E4E7F0 8px);border:1px solid var(--line)"></i>Gap / closed</span>
-        <span><i style="background:repeating-linear-gradient(45deg,#F9E9E7 0,#F9E9E7 4px,#F3D9D6 4px,#F3D9D6 8px);border:1px solid #ECC7C2"></i>Rejects (not queued)</span>
-        <span><i style="background:var(--elig-bg);border:1px solid #BFE3E7"></i>Eligibility-based (SIDF)</span>
-        <span><i style="background:#F0F1F5;border:1px dashed #C9CDDA"></i>Not live (SMBC — projected)</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="view" id="v-profiles">
-    <h2 class="vt">Funder Profiles</h2>
-    <p class="vs">Everything documented per funder — channel, file schedule, rate mechanics, money movement, rules, contacts, and the traps.</p>
-    <div class="fsel" id="fsel"></div>
-    <div id="profileHost"></div>
-  </section>
-
-  <section class="view" id="v-reference">
-    <h2 class="vt">Reference</h2>
-    <p class="vs">Configured limits, the weekly grid, holiday calendars, and the glossary.</p>
-    <div class="ref-grid" id="refHost"></div>
-  </section>
-
-  <section class="view" id="v-openitems">
-    <h2 class="vt">Open Items — pending confirmation</h2>
-    <p class="vs">Where the documentation disagrees or is silent. Each item states what the sources say and what this tool currently assumes. Resolving these makes the checker exact.</p>
-    <div id="oiHost"></div>
-  </section>
-</main>
-
-<footer>
-  <b>Static reference tool — not connected to production.</b> No live liquidity, limit utilization, or file status is shown; timings and rules come from the sources cited in each profile. To update anything (cut-offs, holidays, contacts, limits), edit the <span class="mono">DATA</span> block at the top of this file's script — no logic changes needed. Data compiled <span id="ftAsOf"></span> by the Embedded Finance BA desk.
-</footer>
+  </aside>
 
 <script>
 /* ================================================================
@@ -357,8 +532,9 @@ const LIMITS = {
 
 /* ── GLOSSARY ─────────────────────────────────────────────── */
 const GLOSSARY = [
-  ["D-day rate","The benchmark JPM shares at ~5:00 PM AST (Mon–Thu). Receiving the file auto-activates JPM for the evening/overnight flow (EMQ-5372)."],
-  ["FR1 / FR2","JPM's two request flows. FR1 = D-day evening + overnight collection (Part 1: 5 PM–11:59 PM at Tenor − 1; Part 2: 12 AM–11:30 AM at full tenor). FR2 = same-day activity window 11:30 AM–3:00 PM, files every 30 min."],
+  ["Open vs Queueing","Open = there is a live sending window right now — a request submitted this minute goes out in the next imminent file (e.g. every 15 or 30 min) and funds same-day. Queueing = the funder is available but no file is going out at this moment; the request is accepted and held for the next scheduled batch (e.g. the 09:00 file or Monday's file). Open means 'moving now'; Queueing means 'accepted, waiting for the next dispatch'. Both are fundable — the difference is timing, not eligibility. (Closed = no dispatch at all today; Rejects = actively refused, not held.)"],
+  ["D-day rate","The benchmark JPM shares at ~5:00 PM AST (Mon–Thu). Receiving the file auto-activates JPM for the evening/overnight flow (EMQ-5372 / EMQ-5562)."],
+  ["FR1 / FR2","JPM's two request flows. FR1 = D-day evening + overnight collection (Part 1: 5 PM–11:59 PM at Tenor − 1; Part 2: 12 AM–11:30 AM at full tenor). FR2 = same-day activity window 11:30 AM–4:30 PM, files every 30 min (window extended per EMQ-5562)."],
   ["Tenor − 1","JPM evening offers are priced one day shorter than the natural tenor because they are dispatched the next working day (request date → maturity − 1)."],
   ["T+2 (SMBC)","SMBC deposits funds no later than 2 Funder Business Days after receiving the request by its 14:00 GST cut-off. Mon→Wed, Tue→Thu, Wed→Fri."],
   ["Tri-calendar","SMBC routing requires the submission day, every day in the 3-day window, and the T+2 settlement day to be business days in TARGET2, USA and UAE simultaneously."],
@@ -374,52 +550,38 @@ const GLOSSARY = [
 
 /* ── OPEN ITEMS (the ambiguity log) ───────────────────────── */
 const OPEN_ITEMS = [
- {id:"OI-1",funder:"BNPP",title:"USD on Sunday — same-day or roll to Monday?",
-  says:"The BRD (Apr 2026, from SDD V5.7) says USD processes Sun–Thu with same-day Sunday funding. The July 7 testing plan — which PASSED — says requests received Friday, Saturday or Sunday roll into the next business day's 09:00 file.",
-  assume:"Tool assumes the tested behavior: Fri/Sat/Sun requests queue for Monday 09:00 (both currencies).",
-  owner:"Confirm with BNPP ops / Fahad which is production truth, then update the BRD or this tool."},
- {id:"OI-2",funder:"JPM",title:"Friday daytime behavior + Thursday-evening dispatch day",
-  says:"EMQ-5372's activation calendar says Friday = no auto-activation. EMQ-5518 implies JPM shares a rate Friday ~5 PM (retained, no post-5PM/Saturday processing). FR1 Part 1 from Thursday evening is sent 'next working day 11:30 AM' — Friday for JPM (UK), Sunday/Monday for Manafa.",
-  assume:"Tool assumes Friday is fully closed for new offers, and Thursday-evening collections dispatch Monday 11:30 AM — the next shared Manafa+JPM working day, mirroring EMQ-5518's Sunday→Monday pattern.",
-  owner:"Confirm the Thursday-evening batch dispatch day and whether any Friday daytime flow exists."},
- {id:"OI-3",funder:"SNB",title:"The 09:00–11:29 AM gap",
+ {id:"OI-1",funder:"SNB",title:"The 09:00–11:29 AM gap",
   says:"The BRD's compile windows are 1:01 PM (prev day)–8:59 AM → 09:00 file, and 11:30 AM–12:59 PM → 1:00 PM file. Requests landing 09:00–11:29 AM are not assigned to either window on paper.",
   assume:"Tool assumes they wait for the 11:30 benchmark and join the 1:00 PM file.",
-  owner:"Confirm with SNB ops and add the rule to the BRD."},
- {id:"OI-4",funder:"SNB",title:"Operating days not documented",
+  owner:"Confirm with SNB ops and add the rule to the BRD. (SNB behavior under review — Abdullah to check.)"},
+ {id:"OI-2",funder:"SNB",title:"Operating days not documented",
   says:"The SNB Email Integration Manager defines file timings but never states the operating days of the week.",
   assume:"Tool assumes Sunday–Thursday (local Saudi bank).",
-  owner:"Confirm and add BR to the SNB page (mirror SAB's BR003)."},
- {id:"OI-5",funder:"JPM",title:"SAR capability — dormant or retired?",
-  says:"The JPM SDD documents SAR benchmark and request windows (SAR: 04:00–08:00 AM UK). The Q3 2026 SAMA limits allocate JPM in USD only.",
-  assume:"Tool treats JPM as a USD funder; SAR shown as documented-but-unallocated.",
-  owner:"Confirm whether SAR resumes in a later phase."},
- {id:"OI-6",funder:"JPM",title:"Sunday flow (EMQ-5518) — Dev Completed, not in production",
-  says:"EMQ-5518 makes the Friday 5 PM rate usable on Sunday (offers at Tenor − 1, dispatched Monday 11:30 AM). Status: Dev Completed as of 12 Jul 2026.",
-  assume:"Tool shows Sunday as CLOSED for JPM today, with an 'upcoming' note. Flip the flag in DATA.JPM.sundayLive when it ships.",
-  owner:"Track EMQ-5518 to Production Done, then update."},
- {id:"OI-7",funder:"SMBC",title:"WHT treatment and day-count basis still open",
-  says:"The SMBC BRD flags the withholding-tax rate/base (gross-up vs deduction for the DIFC branch) and the profit day-count basis as open items (OI-6 / OI-7 in the BRD appendix).",
-  assume:"Not needed for availability math; shown here so ops knows pricing isn't final.",
-  owner:"Tax/Compliance to confirm; configure per funder — not hardcoded."},
+  owner:"Confirm and add BR to the SNB page (mirror SAB's BR003). (SNB behavior under review — Abdullah to check.)"},
 ];
+/* Resolved since 12 Jul 2026 (removed from the log):
+   · BNPP Sunday — CONFIRMED: Fri/Sat/Sun always roll to Monday's 09:00 file for both SAR and USD.
+   · JPM Friday/Thursday-evening dispatch + all-day windows — specified by EMQ-5562 (4:30 PM FR2 window, weekend carryover).
+   · JPM SAR — CONFIRMED: JPM does not finance SAR currently (USD only).
+   · JPM Sunday flow — now live (EMQ-5518 / EMQ-5562 BR-05): Sunday offers at Tenor − 1, dispatched Monday.
+   · SMBC WHT — CONFIRMED N/A: no withholding tax applies. */
 
 /* ── FUNDERS ──────────────────────────────────────────────── */
 const FUNDERS = [
- {code:"JPM",name:"J.P. Morgan",status:"live",statusLabel:"Live",
-  ccy:["USD"],ccyNote:"SAR documented in SDD, not allocated in Q3 (OI-5)",
+ {code:"JPM",name:"J.P. Morgan",status:"live",statusLabel:"Live · all-day cycle",
+  ccy:["USD"],ccyNote:"USD only — JPM does not finance SAR currently (documented in the SDD but not offered)",
   programs:"Aramco",channel:"Hybrid — SFTP + Email",
   speed:"Same day (11:30 AM file batches)",
   benchmark:"SOFR (CME Term, T-1) · D-day file ~5:00 PM AST auto-activates JPM",
   margin:"Fees waived (confirmation pending)",basis:"ACT/360, linear interpolation",
   moneyOut:"JPM disburses into Manafa's V-IBAN account held at JPM",
   moneyIn:"Buyer repays direct to JPM account",
-  sundayLive:false,
+  sundayLive:true,
   schedule:[
    ["Benchmark Rate (USD)","in","11:30 (09:30 UK)","SFTP","Republished D-1 morning rate"],
-   ["D-Day Rate Share","in","~17:00 Mon–Thu","SFTP/Email","Auto-activates JPM (EMQ-5372)"],
+   ["D-Day Rate Share","in","~17:00 Mon–Thu","SFTP/Email","Auto-activates JPM (EMQ-5372/5562)"],
    ["Financing Request — FR1","out","11:30","SFTP","Overnight collection dispatched"],
-   ["Financing Request — FR2","out","11:30–15:00 / 30 min","SFTP","Same-day window"],
+   ["Financing Request — FR2","out","11:30–16:30 / 30 min","SFTP","Same-day window (extended, EMQ-5562)"],
    ["File Ack / Response","in","Real-time","SFTP","Approved / Rejected per file"],
    ["Payment Acknowledgement","in","Real-time","Email","Per-supplier disbursement confirm"],
    ["Settlement File","out","Maturity date","Email","Moved from SFTP (EMQ-4952)"],
@@ -429,12 +591,13 @@ const FUNDERS = [
   rules:[
    "FR1 Part 1: transactions from D-day rate share (~5 PM) to 11:59 PM → offered at Tenor − 1, sent next working day 11:30 AM.",
    "FR1 Part 2: transactions 12:00 AM–11:30 AM → full tenor, sent same day 11:30 AM.",
-   "FR2: 11:30 AM–3:00 PM activity window, files every 30 minutes, full tenor, same-day.",
-   "Friday rate share does not activate JPM; the Friday rate is retained for Monday (Sunday too once EMQ-5518 ships).",
+   "FR2: 11:30 AM–4:30 PM activity window, files every 30 minutes, full tenor, same-day (window extended per EMQ-5562).",
+   "Friday rate share does not activate JPM; the Friday rate is retained and applied to Sunday (Tenor − 1) and Monday (full tenor).",
+   "Sunday carryover is live: JPM auto-activates on the retained Friday rate, offers at Tenor − 1, dispatched Monday 11:30 AM (EMQ-5518 / EMQ-5562 BR-05).",
    "Three-tier calculation contract: EP (3dp) → Maturity Bucket (2dp) → Financing Offer, largest-remainder penny allocation.",
   ],
   gotchas:[
-   "Dead zone 3:00–5:00 PM AST — FR2 closed, D-day rate not yet in. JPM is simply unavailable.",
+   "Brief gap 4:30–5:00 PM AST — FR2 closed, D-day rate not yet in. JPM is momentarily unavailable in this 30-minute slot.",
    "JPM cannot process Sunday maturity dates (INC-EF-2026-013 — 8 EPs affected). Maturity routing must avoid Sundays.",
    "Monday morning runs on Friday's retained rate — expect a stale-rate feel after volatile weekends.",
    "SFTP certificate expired — renewal pending (Funder Updates page).",
@@ -442,7 +605,8 @@ const FUNDERS = [
   ],
   contacts:{manafa:["jpm-op@manafa.co (per SDD — verify)"],funder:["JPM ops distribution — per SDD (edit in DATA)"]},
   pending:["Pricing & program allocation to be shared","SFTP certificate renewal","Fees-waiver confirmation","B2B production request — cut-off extension feedback","Updated Supplier Set-Up format + benchmark file naming"],
-  sources:[["EMQ-5372 — D-Day activation (Production Done)","https://manafaco.atlassian.net/browse/EMQ-5372"],
+  sources:[["EMQ-5562 — Correcting JPM financing windows (4:30 PM window, all-day flows, weekend carryover)","https://manafaco.atlassian.net/browse/EMQ-5562"],
+           ["EMQ-5372 — D-Day activation (Production Done)","https://manafaco.atlassian.net/browse/EMQ-5372"],
            ["EMQ-5518 — Friday rate on Sunday (Dev Completed)","https://manafaco.atlassian.net/browse/EMQ-5518"],
            ["MDCH-2128 — window extension change record","https://manafaco.atlassian.net/browse/MDCH-2128"],
            ["Funder Updates (Confluence)","https://manafaco.atlassian.net/wiki/spaces/EFD/pages/3845521432"]]},
@@ -488,7 +652,7 @@ const FUNDERS = [
   programs:"Aramco",channel:"Secure Email (SMTP, cert-based)",
   speed:"T+2 — Mon→Wed, Tue→Thu, Wed→Fri",
   benchmark:"Term SOFR curve file 13:05–13:30 AST (T-1 published) · linear interpolation",
-  margin:"Shared offline, one-time with periodic review (BR007)",basis:"Liquidity on invoice amount · day-count basis open (OI-7)",
+  margin:"Shared offline, one-time with periodic review (BR007)",basis:"Liquidity on invoice amount · no withholding tax (WHT N/A) · day-count basis being finalized",
   moneyOut:"Instruction-based: SMBC pays the supplier's bank account directly",
   moneyIn:"Aramco repays SMBC's account directly; NO settlement confirmation returns",
   schedule:[
@@ -515,7 +679,7 @@ const FUNDERS = [
    "No settlement confirmation exists — invoices auto-mark settled when the 17:30 settlement file is dispatched.",
    "A single bad invoice kills its whole loan, not just itself.",
    "The T anchor is 14:00 GST = 13:00 AST — contracts speak GST, this page speaks AST.",
-   "WHT treatment and day-count basis still open (OI-7) — pricing not final.",
+   "No withholding tax applies (WHT confirmed N/A); only the profit day-count basis is still being finalized.",
   ],
   contacts:{manafa:["smbc-op@manafa.co (ops)","integration@manafa.co (technical)"],
     funder:["aedudubaiops@ae.smbcgroup.com","aedugtfd@ae.smbcgroup.com","houssam_hoteit@ae.smbcgroup.com","ningshiwon_shangchiri@ae.smbcgroup.com","prasad_parthasarathy@ae.smbcgroup.com","sadiq_mohamed@gb.smbcgroup.com"]},
@@ -586,10 +750,10 @@ const FUNDERS = [
   sources:[["SAB — Email Integration Manager (V1.0, 14 Nov 2025)","https://manafaco.atlassian.net/wiki/spaces/EFD/pages/3882090497"],
            ["EMQ-5400 — SE program onboarding","https://manafaco.atlassian.net/browse/EMQ-5400"]]},
 
- {code:"SIDF",name:"SIDF",status:"live",statusLabel:"Live · wallet-funded QI",
+ {code:"SIDF",name:"SIDF",status:"live",statusLabel:"Live · open 24/7 · wallet-funded QI",
   ccy:["SAR","USD"],ccyNote:"Q3 limits list SIDF/SIC in both currencies",
   programs:"Aramco",channel:"Platform virtual wallet — no file exchange",
-  speed:"Instant — funds pre-deposited in the wallet",
+  speed:"Instant — funds pre-deposited in the wallet · available 24/7",
   benchmark:"SAIBOR + funder margin",
   margin:"Per agreement",basis:"",
   moneyOut:"Disbursed from SIDF's virtual wallet / call account on Manafa",
@@ -600,13 +764,13 @@ const FUNDERS = [
    ["Investment Statement / Call Account Statement","out","On demand","Report","Excel + PDF, Arabic"],
   ],
   rules:[
-   "Eligibility gate 1 — working license must be Industrial, Logistics, Mining, or Generation (energy).",
-   "Eligibility gate 2 — borrower ISIC activity must match SIDF's shared ISIC list.",
-   "Pricing engine auto-includes SIDF when both gates pass and wallet balance covers the invoice.",
-   "Availability window is platform-governed (Qualified Investor profile: days of operation + daily cut-off).",
+   "Availability: open 24/7 — no file window, no cut-off, no weekend/holiday closure. If the borrower is eligible and the wallet is funded, it can finance any time.",
+   "Eligibility gate 1 — the borrower's working license must be Industrial, Logistics, Mining, or Generation (energy).",
+   "Eligibility gate 2 — the borrower's ISIC activity must match SIDF's shared ISIC list.",
+   "Pricing engine auto-includes SIDF when both eligibility gates pass and the wallet balance covers the invoice.",
   ],
   gotchas:[
-   "No external window exists — 'is SIDF available' means 'is the borrower eligible and is the wallet funded'.",
+   "'Is SIDF available?' is really two questions: is the borrower eligible (license + ISIC gates), and is the wallet funded — the funder itself is always open.",
    "Opportunity cost is tracked on idle call-account balance — Finance watches unutilized funds.",
   ],
   contacts:{manafa:["Relationship-managed — no ops mailbox"],funder:["SIDF portal access (QI dashboard)"]},
@@ -659,28 +823,30 @@ function stJPM(date,w,mins,ccy){
   const kh=hol("KSA",date), uh=hol("UK",date);
   if(kh) return V("closed","jpm-kh","KSA public holiday — "+kh,"KSA holiday","No Manafa dispatch today.");
   if(uh) return V("closed","jpm-uh","UK bank holiday — "+uh,"UK holiday","JPM is not processing today.");
-  if(w===0) return V("closed","jpm-sun","Closed on Sunday (for now)","Closed — Sun flow coming",
-      "Friday's retained rate is used for Monday only. EMQ-5518 (Dev Completed) will open Sunday at Tenor − 1 once in production.",
-      {flags:["Upcoming: Sunday flow at Tenor − 1 — EMQ-5518, Dev Completed (OI-6)"]});
-  if(w===5) return V("closed","jpm-fri","Closed on Friday (assumed)","Closed (confirm)",
-      "No Friday auto-activation per EMQ-5372. Friday daytime behavior pending confirmation.",
-      {flags:["Assumption — Friday closed for new offers (OI-2)"]});
-  if(w===6) return V("closed","jpm-sat","Closed — Saturday","Closed","Weekend. Next rate share Monday ~5:00 PM.");
+  if(w===6) return V("closed","jpm-sat","Closed — Saturday","Closed","Weekend. Friday's ~5:00 PM rate is retained for the Sunday carryover flow.");
+  if(w===5) return V("closed","jpm-fri","Closed on Friday — rate retained for the weekend","Closed (rate retained)",
+      "No Friday auto-activation (EMQ-5562 BR-01). The Friday ~5:00 PM D-day rate is retained and applied to Sunday (Tenor − 1) and Monday (full tenor).");
+  if(w===0){ // Sunday carryover — now live (EMQ-5518 / EMQ-5562 BR-05)
+    const nx = nextMatching(date, t=>isKsaBiz(t)&&isUkBiz(t)); // Monday
+    return V("evening","jpm-fr1p1-sun","Sunday carryover — offers at Tenor − 1 on Friday's retained rate","Carryover (T−1)",
+      "JPM auto-activates on the retained Friday D-day rate. Offers price at Tenor − 1, collected all day, dispatched Monday 11:30 AM.",
+      {joins:fmtD(nx)+" 11:30 file",funded:fmtD(nx),rate:"Fri 17:00 D-day rate (retained)"});
+  }
+  // Mon–Thu — effectively all-day: overnight → FR2 window → short gap → evening
   const rate=jpmLastRateShare(date,w,mins);
   if(mins<690) return V("open","jpm-fr1p2","Overnight flow — FR1 Part 2 (full tenor)","FR1 overnight → 11:30",
-      "Offers generated on the retained D-day rate; collected and dispatched in today's 11:30 AM file, processed same day.",
+      "Offers generated on the retained D-day rate; collected and dispatched in today's 11:30 AM file, processed same day."+(w===1?" Monday runs on Friday's retained rate.":""),
       {joins:"Today's 11:30 file",funded:"Same day — "+fmtD(date),rate});
-  if(mins<900) return V("open","jpm-fr2","Activity window — FR2 (files every 30 min)","FR2 window",
-      "Same-day flow at full tenor. Requests join the next half-hour dispatch until 3:00 PM.",
-      {joins:"Next 30-min slot ("+fmtHM(Math.min(900,Math.ceil((mins+1)/30)*30))+")",funded:"Same day — "+fmtD(date),rate});
-  if(mins<1020) return V("gap","jpm-gap","Dead zone — between FR2 close and the D-day rate","Gap 15:00–17:00",
-      "FR2 closed at 3:00 PM; the ~5:00 PM D-day rate hasn't arrived. JPM is not selectable in this window.",
+  if(mins<990) return V("open","jpm-fr2","Activity window — FR2 (files every 30 min)","FR2 window",
+      "Same-day flow at full tenor. Requests join the next half-hour dispatch until 4:30 PM (window extended per EMQ-5562).",
+      {joins:"Next 30-min slot ("+fmtHM(Math.min(990,Math.ceil((mins+1)/30)*30))+")",funded:"Same day — "+fmtD(date),rate});
+  if(mins<1020) return V("gap","jpm-gap","Brief gap — between the 4:30 PM FR2 close and the ~5:00 PM D-day rate","Gap 16:30–17:00",
+      "FR2 closed at 4:30 PM; the ~5:00 PM D-day rate hasn't arrived yet. JPM is momentarily unavailable.",
       {rate});
   const nx = nextMatching(date, t=>isKsaBiz(t)&&isUkBiz(t));
   const ev = V("evening","jpm-fr1p1","D-day evening flow — FR1 Part 1 (Tenor − 1)","Evening flow (T−1)",
       "The ~5:00 PM rate auto-activated JPM. Offers price at Tenor − 1, collected overnight, dispatched the next shared working day 11:30 AM.",
       {joins:fmtD(nx)+" 11:30 file",funded:fmtD(nx),rate:DOWN[w]+" 17:00 D-day rate"});
-  if(w===4) ev.flags.push("Assumption — Thursday-evening batch assumed to dispatch Monday 11:30, mirroring EMQ-5518's Sunday→Monday pattern (OI-2)");
   return ev;
 }
 
@@ -692,11 +858,9 @@ function stBNPP(date,w,mins,ccy){
       "BNPP-observed holiday: no files today. Requests queue for the next sending day's 09:00 file.",
       {joins:fmtD(n)+" 09:00 file",funded:fmtD(n),rate:"Rate of the file day"});}
   if(w===0||w===5||w===6){const n=nxt(date);
-    const v=V("queue","bnpp-wkd","Weekend — queues for "+fmtD(n)+" 09:00 file","→ "+DOWN[dow(n)]+" 09:00",
-      "Per the passed testing plan, Fri/Sat/Sun requests roll into the next business day's 09:00 file. "+sarCap,
-      {joins:fmtD(n)+" 09:00 file",funded:fmtD(n),rate:"Previous business day's rate at dispatch"});
-    if(w===0) v.flags.push("BRD says USD funds same-day on Sunday; testing plan says roll to Monday — tool uses the tested behavior (OI-1)");
-    return v;}
+    return V("queue","bnpp-wkd","Weekend — queues for "+fmtD(n)+" 09:00 file","→ "+DOWN[dow(n)]+" 09:00",
+      "Friday, Saturday and Sunday requests always roll into Monday's 09:00 file — for both SAR and USD (confirmed). "+sarCap,
+      {joins:fmtD(n)+" 09:00 file",funded:fmtD(n),rate:"Previous business day's rate at dispatch"});}
   // Mon–Thu
   if(mins<540) return V("queue","bnpp-am","Collecting for today's 09:00 file","→ 09:00 file",
       "Requests submitted now join the first file of the day and fund same-day. "+sarCap,
@@ -784,13 +948,10 @@ function stSAB(date,w,mins,ccy){
 }
 
 function stSIDF(date,w,mins,ccy){
-  const kh=hol("KSA",date);
-  if(kh) return V("closed","sidf-kh","Platform holiday — "+kh,"Holiday","No platform financing run today.");
-  if(w===5||w===6) return V("closed","sidf-wkd","Platform weekend (Sun–Thu)","Weekend","Wallet financing resumes Sunday.");
-  return V("elig","sidf-on","Available — wallet-funded, eligibility applies","Wallet — eligibility",
-      "No external window or cut-off. SIDF funds instantly from its virtual wallet when the borrower passes both gates: an approved license (Industrial / Logistics / Mining / Generation) AND an ISIC code on SIDF's list — and the wallet covers the amount.",
-      {joins:"No file — pricing engine selects directly",funded:"Instant (wallet)",rate:"SAIBOR + SIDF margin",
-       flags:["Exact hours governed by the Qualified Investor profile config (days of operation + daily cut-off)"]});
+  // Wallet-funded QI — open around the clock. Eligibility is a borrower gate, not an availability window.
+  return V("open","sidf-on","Open — wallet-funded, available 24/7","Open · 24/7",
+      "Available around the clock, every day. A request funds the instant the borrower passes both eligibility gates and the wallet balance covers the invoice — there is no external file window or cut-off.",
+      {joins:"Instant — wallet draw",funded:"Instant",rate:"SAIBOR + funder margin"});
 }
 
 const ENGINES = {JPM:stJPM,BNPP:stBNPP,SMBC:stSMBC,SNB:stSNB,SAB:stSAB,SIDF:stSIDF};
@@ -823,208 +984,336 @@ function nextChange(code,date,mins,ccy){
 
 /* ── rendering helpers ── */
 const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+/* ════════════════ RENDER LAYER — shadcn "New York" App Shell ════════════════ */
 function logoImg(code,baseH){
   const L=LOGOS[code]; if(!L) return "<b>"+code+"</b>";
-  return '<img src="data:image/png;base64,'+L.b64+'" alt="'+code+'" style="height:'+Math.round(baseH*L.s)+'px">';
+  return '<img src="data:image/png;base64,'+L.b64+'" alt="'+esc(code)+'" style="height:'+Math.round(baseH*L.s)+'px">';
 }
 const F = code => FUNDERS.find(f=>f.code===code);
 const $ = id => document.getElementById(id);
+function svg(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
 
-/* header chips (always NOW) */
-function renderChips(){
-  const n=ksaNow(); const date={y:n.y,m:n.m,d:n.d}; const mins=n.hh*60+n.mm;
-  $("chipRow").innerHTML = FUNDERS.map(f=>{
-    const v=verdict(f.code,date,mins,"ALL");
-    const word = v.state==="open"?"Open":v.state==="queue"?"Queueing":v.state==="elig"?"Eligible*":v.state==="notlive"?"Not live":v.state==="reject"?"Rejects":v.state==="gap"?"Gap":"Closed";
-    return '<button class="fchip" data-goto="'+f.code+'"><span class="dot s-'+v.state+'"></span><b>'+f.code+'</b><small>'+word+'</small></button>';
-  }).join("");
-  document.querySelectorAll(".fchip").forEach(b=>b.onclick=()=>{switchTab("profiles");selectFunder(b.dataset.goto);});
+/* status → word + semantic key */
+const ST = {
+  open:{w:"Open",k:"open"}, queue:{w:"Queueing",k:"queue"}, closed:{w:"Closed",k:"closed"},
+  reject:{w:"Rejects",k:"reject"}, gap:{w:"Gap",k:"gap"}, notlive:{w:"Not live",k:"notlive"},
+  elig:{w:"Open",k:"open"}
+};
+function stbadge(state){ const s=ST[state]||ST.closed; return '<span class="stbadge" data-st="'+s.k+'"><span class="sdot"></span>'+s.w+'</span>'; }
+
+/* ════════ NAV ════════ */
+const IC = {
+  checker:'<circle cx="12" cy="12" r="10"/><path d="m12 14 4-2.5"/><path d="M12 12V7"/>',
+  timeline:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  profiles:'<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+  reference:'<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+  openitems:'<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>'
+};
+const NAV = [
+  {type:'item', id:'checker', label:'Availability Checker', icon:IC.checker},
+  {type:'group', label:'Views', icon:IC.timeline, items:[
+    {id:'timeline', label:'Day Timeline'},
+    {id:'profiles', label:'Funder Profiles'},
+  ]},
+  {type:'group', label:'Knowledge', icon:IC.reference, items:[
+    {id:'reference', label:'Reference'},
+    {id:'openitems', label:'Open Items', badge:OPEN_ITEMS.length},
+  ]},
+];
+function buildNav(){
+  let html='';
+  NAV.forEach((n,gi)=>{
+    if(n.type==='item'){
+      html += '<button class="menu-btn" data-view="'+n.id+'" onclick="go(\''+n.id+'\')" title="'+n.label+'"><span class="icon">'+svg(n.icon)+'</span><span class="label">'+n.label+'</span></button>';
+    } else {
+      const sid='sub-'+gi;
+      html += '<button class="menu-btn" aria-expanded="true" onclick="toggleSub(this,\''+sid+'\')" title="'+n.label+'"><span class="icon">'+svg(n.icon)+'</span><span class="label">'+n.label+'</span><svg class="chev-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button><div class="submenu open" id="'+sid+'">';
+      n.items.forEach(it=>{
+        const b = it.badge ? '<span class="m-badge">'+it.badge+'</span>' : '';
+        html += '<button class="menu-btn" data-view="'+it.id+'" onclick="go(\''+it.id+'\')"><span class="label">'+it.label+'</span>'+b+'</button>';
+      });
+      html += '</div>';
+    }
+    if(gi===0) html += '<div class="sidebar-sep"></div>';
+  });
+  $('nav').innerHTML=html;
 }
 
-/* clock */
-function tickClock(){
-  const n=ksaNow();
-  $("clockT").innerHTML = pad(n.hh)+":"+pad(n.mm)+"<small>:"+pad(n.ss)+"</small>";
-  $("clockD").textContent = DOWN[dow(n)]+" "+n.d+" "+MON[n.m-1]+" "+n.y+" · Asia/Riyadh (AST, UTC+3)";
+/* ════════ ROUTER ════════ */
+const CRUMB = {
+  checker:['Availability Checker'], timeline:['Views','Day Timeline'], profiles:['Views','Funder Profiles'],
+  reference:['Knowledge','Reference'], openitems:['Knowledge','Open Items'],
+};
+let currentView='checker';
+function setCrumb(parts){
+  let html='<a onclick="go(\'checker\')">Control Tower</a>';
+  parts.forEach((p,i)=>{ html += '<span class="sep">/</span>'; html += (i<parts.length-1)?'<span class="muted crumb-hide">'+p+'</span>':'<span>'+p+'</span>'; });
+  $('breadcrumb').innerHTML=html;
+}
+function setActive(id){ document.querySelectorAll('.menu-btn[data-view]').forEach(b=>b.classList.toggle('active', b.dataset.view===id)); }
+function go(id){
+  closeMenus(); closeMobile(); currentView=id;
+  setActive(id); setCrumb(CRUMB[id]||['—']);
+  $('view').innerHTML = (VIEWS[id]||VIEWS.checker)();
+  document.querySelector('.main').scrollTop=0;
+  if(typeof window['after_'+id]==='function') window['after_'+id]();
+}
+function head(title, sub, actions){
+  return '<div class="page-head"><div><h1>'+title+'</h1>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap">'+(actions||'')+'</div></div>';
 }
 
-/* ── checker ── */
-let liveMode=true;
-function readSel(){
-  const dv=$("inDate").value, tv=$("inTime").value;
-  const [y,m,d]=dv.split("-").map(Number); const [hh,mm]=tv.split(":").map(Number);
-  return {date:{y,m,d},mins:hh*60+mm};
+/* ════════ STATE ════════ */
+const STATE = { date:null, mins:0, ccy:'ALL', live:true };
+let curFunder='JPM';
+let tlDate=null;
+
+/* ════════ VIEWS ════════ */
+const VIEWS = {};
+
+/* —— Availability Checker —— */
+VIEWS.checker = ()=>{
+  const hh=pad(Math.floor(STATE.mins/60)), mm=pad(STATE.mins%60);
+  const opt=(v,l)=>'<option value="'+v+'"'+(STATE.ccy===v?' selected':'')+'>'+l+'</option>';
+  return head('Availability Checker',
+      'Pick any moment and see, per funder, whether a financing request submitted then is accepted, which file it joins, when the supplier is funded, and which day’s rate applies. All times AST (KSA, UTC+3).')
+    + '<div class="controls">'
+      + '<div class="field"><label>Date</label><input type="date" id="inDate" value="'+dkey(STATE.date)+'"></div>'
+      + '<div class="field"><label>Time (AST)</label><input type="time" id="inTime" value="'+hh+':'+mm+'"></div>'
+      + '<div class="field"><label>Currency</label><select id="inCcy">'+opt('ALL','All')+opt('SAR','SAR')+opt('USD','USD')+'</select></div>'
+      + '<button class="btn primary" id="btnNow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Reset to now</button>'
+      + '<span class="as-of spacer" id="asOf">Data as of '+esc(CONFIG.dataAsOf)+'</span>'
+    + '</div>'
+    + '<div id="kpiSlot"></div>'
+    + '<div class="fcards" id="fcards"></div>';
+};
+function kpiStat(label,count,stKey,sub){
+  return '<div class="kpi"><div class="k-top"><span class="k-label">'+label+'</span><span class="k-dot" style="background:var(--st-'+stKey+')"></span></div><div class="k-count">'+count+'</div><div class="k-sub">'+sub+'</div></div>';
 }
-function setSelToNow(){
-  const n=ksaNow();
-  $("inDate").value=dkey(n); $("inTime").value=pad(n.hh)+":"+pad(n.mm);
-  liveMode=true; $("livePill").style.display="inline-flex";
-  renderCards();
+function renderKpi(c){
+  const na=(c.gap||0)+(c.reject||0)+(c.notlive||0);
+  $('kpiSlot').innerHTML='<div class="kpi-grid">'
+    + kpiStat('Open now', c.open||0, 'open', 'Live sending window')
+    + kpiStat('Queueing', c.queue||0, 'queue', 'Held for the next file')
+    + kpiStat('Closed', c.closed||0, 'closed', 'No dispatch today')
+    + kpiStat('Not available', na, 'reject', 'Rejects / gap / not live')
+    + '</div>';
+}
+function fcard(f,v,nc){
+  const flags=(v.flags||[]).map(x=>'<div class="fc-flag">'+esc(x)+'</div>').join('');
+  const meta='<div class="fc-meta"><span>'+esc(f.ccy.join(' · '))+'</span><span>'+esc(f.channel.split('—')[0].split('(')[0].trim())+'</span><span>'+esc(f.speed.split('(')[0].split('—')[0].trim())+'</span></div>';
+  return '<div class="fcard state-'+v.state+'">'
+    + '<div class="fc-head"><span class="fc-logo">'+logoImg(f.code,22)+'</span>'+stbadge(v.state)+'</div>'
+    + '<div class="fc-hl">'+esc(v.hl)+'</div>'
+    + '<div class="fc-dt">'+esc(v.dt)+'</div>'
+    + '<div class="fc-rows">'
+      + '<div class="fc-row"><b>Joins</b><span>'+esc(v.joins)+'</span></div>'
+      + '<div class="fc-row"><b>Funded</b><span>'+esc(v.funded)+'</span></div>'
+      + '<div class="fc-row"><b>Rate</b><span>'+esc(v.rate)+'</span></div>'
+    + '</div>'
+    + (nc?'<div class="fc-next">Next change: <b>'+esc(nc.to)+'</b> at '+esc(nc.when)+' · '+esc(nc.inTxt)+'</div>':'')
+    + flags + meta
+  + '</div>';
+}
+function dimCard(f,ccy){
+  return '<div class="fcard dim"><div class="fc-head"><span class="fc-logo">'+logoImg(f.code,22)+'</span><span class="stbadge" data-st="closed"><span class="sdot"></span>N/A</span></div><div class="fc-hl">Not a '+esc(ccy)+' funder</div><div class="fc-dt">'+esc(f.code)+' operates in '+esc(f.ccy.join(' & '))+' only.</div></div>';
 }
 function renderCards(){
-  const {date,mins}=readSel(); const ccy=$("inCcy").value;
-  $("cards").innerHTML = FUNDERS.map(f=>{
-    const supports = ccy==="ALL" || f.ccy.includes(ccy);
-    if(!supports){
-      return '<div class="vcard dim"><div class="vhead">'+logoImg(f.code,22)+'<span class="pill p-closed">N/A</span></div>'+
-        '<div class="vhl">Not a '+ccy+' funder</div><div class="vdt">'+f.code+' operates in '+f.ccy.join(" & ")+' only.</div></div>';
-    }
-    const v=verdict(f.code,date,mins,ccy);
-    const nc=nextChange(f.code,date,mins,ccy);
-    const flags=(v.flags||[]).map(x=>'<div class="vflag">⚠ '+esc(x)+'</div>').join("");
-    const meta='<div class="vmeta"><span class="mtag">'+f.ccy.join(" · ")+'</span><span class="mtag">'+esc(f.channel.split("—")[0].split("(")[0].trim())+'</span><span class="mtag">'+esc(f.speed.split("(")[0].split("—")[0].trim())+'</span></div>';
-    return '<div class="vcard">'+
-      '<div class="vhead">'+logoImg(f.code,22)+'<span class="pill p-'+v.state+'">'+v.pill+'</span></div>'+
-      '<div class="vhl">'+esc(v.hl)+'</div><div class="vdt">'+esc(v.dt)+'</div>'+
-      '<div class="vrows">'+
-        '<div class="vrow"><b>Joins</b><span>'+esc(v.joins)+'</span></div>'+
-        '<div class="vrow"><b>Funded</b><span>'+esc(v.funded)+'</span></div>'+
-        '<div class="vrow"><b>Rate</b><span>'+esc(v.rate)+'</span></div>'+
-      '</div>'+
-      (nc?'<div class="vnext">Next: '+esc(nc.to)+' at '+esc(nc.when)+' · '+esc(nc.inTxt)+'</div>':"")+
-      flags+meta+'</div>';
-  }).join("");
-}
-
-/* ── timeline ── */
-function renderTimeline(){
-  const dv=$("tlDate").value; const [y,m,d]=dv.split("-").map(Number); const date={y,m,d};
-  const n=ksaNow(); const isToday = dkey(date)===dkey(n);
-  const holNote = hol("KSA",date);
-  $("tlDayLabel").textContent = fmtD(date)+" "+y+(holNote?" · KSA holiday: "+holNote:"");
-  let html='<div class="tl-hours">'+Array.from({length:24},(_,h)=>"<span>"+pad(h)+"</span>").join("")+'</div>';
+  if(currentView!=='checker' || !$('fcards')) return;
+  const date=STATE.date, mins=STATE.mins, ccy=STATE.ccy;
+  const counts={};
+  let html='';
   FUNDERS.forEach(f=>{
-    // build segments by minute-sampling
+    if(!(ccy==='ALL'||f.ccy.includes(ccy))){ html+=dimCard(f,ccy); return; }
+    const v=verdict(f.code,date,mins,ccy), nc=nextChange(f.code,date,mins,ccy);
+    counts[v.state]=(counts[v.state]||0)+1;
+    html+=fcard(f,v,nc);
+  });
+  $('fcards').innerHTML=html;
+  renderKpi(counts);
+}
+window.after_checker = function(){
+  $('inDate').addEventListener('input', e=>{ const [y,m,d]=e.target.value.split('-').map(Number); if(y){ STATE.date={y,m,d}; STATE.live=false; renderCards(); } });
+  $('inTime').addEventListener('input', e=>{ const [h,mi]=e.target.value.split(':').map(Number); if(!isNaN(h)){ STATE.mins=h*60+mi; STATE.live=false; renderCards(); } });
+  $('inCcy').addEventListener('change', e=>{ STATE.ccy=e.target.value; renderCards(); });
+  $('btnNow').onclick=()=>{ const n=ksaNow(); STATE.date={y:n.y,m:n.m,d:n.d}; STATE.mins=n.hh*60+n.mm; STATE.live=true;
+    $('inDate').value=dkey(STATE.date); $('inTime').value=pad(n.hh)+':'+pad(n.mm); renderCards(); };
+  renderCards();
+};
+
+/* —— Day Timeline —— */
+VIEWS.timeline = ()=>{
+  if(!tlDate){ const n=ksaNow(); tlDate={y:n.y,m:n.m,d:n.d}; }
+  return head('Day Timeline','The 24-hour shape of each funder, side by side. Dashed ticks are cut-offs; the red needle is now (shown when viewing today). All times AST.')
+    + '<div class="controls">'
+      + '<div class="field"><label>Date</label><input type="date" id="tlDate" value="'+dkey(tlDate)+'"></div>'
+      + '<button class="btn" id="tlToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>Today</button>'
+      + '<span class="as-of spacer" id="tlDayLabel"></span>'
+    + '</div>'
+    + '<div class="tl-wrap"><div class="tl-inner" id="tlInner"></div></div>'
+    + '<div class="tl-legend">'
+      + '<span><i style="background:var(--st-open)"></i>Open — live sending window</span>'
+      + '<span><i style="background:var(--st-queue)"></i>Queueing for a scheduled file</span>'
+      + '<span><i style="background:#7C3AED"></i>JPM evening flow (Tenor − 1)</span>'
+      + '<span><i style="background:var(--st-gap)"></i>Gap</span>'
+      + '<span><i style="background:var(--st-reject)"></i>Rejects</span>'
+      + '<span><i style="background:var(--muted)"></i>Closed / not live</span>'
+    + '</div>';
+};
+function renderTimeline(){
+  if(!$('tlInner')) return;
+  const date=tlDate, n=ksaNow(), isToday=dkey(date)===dkey(n), holNote=hol('KSA',date);
+  $('tlDayLabel').textContent = fmtD(date)+' '+date.y+(holNote?' · KSA holiday: '+holNote:'');
+  let html='<div class="tl-hours">'+Array.from({length:24},(_,h)=>'<span>'+pad(h)+'</span>').join('')+'</div>';
+  FUNDERS.forEach(f=>{
     const segs=[]; let cur=null;
     for(let mm=0;mm<1440;mm++){
-      const v=verdict(f.code,date,mm,"ALL");
-      if(!cur||cur.sig!==v.sig){ if(cur)segs.push(cur); cur={sig:v.sig,state:v.state,label:v.short,a:mm,b:mm+1}; }
-      else cur.b=mm+1;
+      const v=verdict(f.code,date,mm,'ALL');
+      if(!cur||cur.sig!==v.sig){ if(cur)segs.push(cur); cur={sig:v.sig,state:v.state,label:v.short,a:mm,b:mm+1}; } else cur.b=mm+1;
     }
     if(cur)segs.push(cur);
-    const cls = s => s.state==="open"&&s.sig.indexOf("fr1p1")>-1 ? "g-evening" : "g-"+s.state;
-    let track = segs.map(s=>{
-      const l=(s.a/1440*100).toFixed(3), w=((s.b-s.a)/1440*100).toFixed(3);
-      const wide=(s.b-s.a)>=120;
-      return '<div class="seg '+cls(s)+'" style="left:'+l+'%;width:'+w+'%" title="'+esc(s.label)+' · '+fmtHM(s.a)+'–'+fmtHM(s.b%1440===0?1439:s.b)+'">'+(wide?esc(s.label):"")+'</div>';
-    }).join("");
-    track += (TICKS[f.code]||[]).map(([mm,lb])=>'<div class="tick" style="left:'+(mm/1440*100).toFixed(3)+'%"><i>'+lb+'</i></div>').join("");
-    if(isToday){const nm=n.hh*60+n.mm;track+='<div class="needle" style="left:'+(nm/1440*100).toFixed(3)+'%"></div>';}
-    html+='<div class="tl-row"><div class="tl-name">'+logoImg(f.code,15)+'</div><div class="tl-track">'+track+'</div></div>';
+    const cls=s=> (s.state==='open'&&s.sig.indexOf('fr1p1')>-1) ? 'g-evening' : 'g-'+s.state;
+    let track=segs.map(s=>{
+      const l=(s.a/1440*100).toFixed(3), w=((s.b-s.a)/1440*100).toFixed(3), wide=(s.b-s.a)>=140;
+      return '<div class="seg '+cls(s)+'" style="left:'+l+'%;width:'+w+'%" title="'+esc(s.label)+' · '+fmtHM(s.a)+'–'+fmtHM(s.b%1440===0?1439:s.b)+'">'+(wide?esc(s.label):'')+'</div>';
+    }).join('');
+    track += (TICKS[f.code]||[]).map(t=>'<div class="tick" style="left:'+(t[0]/1440*100).toFixed(3)+'%"></div>').join('');
+    if(isToday){ const nm=n.hh*60+n.mm; track+='<div class="needle" style="left:'+(nm/1440*100).toFixed(3)+'%"></div>'; }
+    html+='<div class="tl-row"><div class="tl-name">'+logoImg(f.code,14)+'</div><div class="tl-track">'+track+'</div></div>';
   });
-  $("tlInner").innerHTML=html;
+  $('tlInner').innerHTML=html;
 }
+window.after_timeline = function(){
+  $('tlDate').addEventListener('input', e=>{ const [y,m,d]=e.target.value.split('-').map(Number); if(y){ tlDate={y,m,d}; renderTimeline(); } });
+  $('tlToday').onclick=()=>{ const n=ksaNow(); tlDate={y:n.y,m:n.m,d:n.d}; $('tlDate').value=dkey(tlDate); renderTimeline(); };
+  renderTimeline();
+};
 
-/* ── profiles ── */
-let curFunder="JPM";
+/* —— Funder Profiles —— */
+VIEWS.profiles = ()=>{
+  const picker=FUNDERS.map(f=>'<button onclick="selectFunder(\''+f.code+'\')" data-f="'+f.code+'"'+(f.code===curFunder?' class="active"':'')+'>'+logoImg(f.code,15)+'<span>'+f.code+'</span></button>').join('');
+  return head('Funder Profiles','Everything documented per funder — channel, file schedule, rate mechanics, money movement, rules, contacts, and the traps.')
+    + '<div class="fpick" id="fpick">'+picker+'</div>'
+    + '<div id="profileHost"></div>';
+};
 function selectFunder(code){
   curFunder=code;
-  document.querySelectorAll(".fbtn").forEach(b=>b.classList.toggle("active",b.dataset.f===code));
-  const f=F(code);
-  const sched=f.schedule.map(r=>'<tr><td>'+esc(r[0])+'</td><td class="'+(r[1]==="out"?"dir-out":"dir-in")+'">'+(r[1]==="out"?"Manafa → Funder":"Funder → Manafa")+'</td><td class="mono">'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td>'+esc(r[4])+'</td></tr>').join("");
-  const rules=f.rules.map(x=>"<li>"+esc(x)+"</li>").join("");
-  const got=f.gotchas.map(x=>"<li>"+esc(x)+"</li>").join("");
-  const pend=f.pending.map(x=>"<li>"+esc(x)+"</li>").join("");
-  const cts='<div class="p-grid"><div class="p-kv"><b>Manafa side</b><span class="mono">'+f.contacts.manafa.map(esc).join("<br>")+'</span></div>'+
-            '<div class="p-kv"><b>Funder side</b><span class="mono">'+f.contacts.funder.map(esc).join("<br>")+'</span></div></div>';
-  const srcs=f.sources.map(s=>s[1]?'<a href="'+s[1]+'" target="_blank" rel="noopener">'+esc(s[0])+'</a>':esc(s[0])).join(" · ");
-  $("profileHost").innerHTML =
-   '<div class="profile"><div class="p-head">'+logoImg(code,30)+
-   '<div><h3>'+esc(f.name)+'</h3><div class="sub">'+esc(f.programs)+' · '+esc(f.channel)+'</div></div>'+
-   '<div class="p-badges"><span class="pill '+(f.status==="live"?"p-open":"p-notlive")+'">'+esc(f.statusLabel).toUpperCase()+'</span></div></div>'+
-   '<div class="p-grid">'+
-     '<div class="p-kv"><b>Currencies</b><span>'+f.ccy.join(" · ")+(f.ccyNote?'<br><small style="color:var(--mut)">'+esc(f.ccyNote)+"</small>":"")+'</span></div>'+
-     '<div class="p-kv"><b>Funding speed</b><span>'+esc(f.speed)+'</span></div>'+
-     '<div class="p-kv"><b>Benchmark</b><span>'+esc(f.benchmark)+'</span></div>'+
-     '<div class="p-kv"><b>Margin / fees</b><span>'+esc(f.margin)+(f.basis?'<br><small style="color:var(--mut)">'+esc(f.basis)+"</small>":"")+'</span></div>'+
-     '<div class="p-kv"><b>Disbursement</b><span>'+esc(f.moneyOut)+'</span></div>'+
-     '<div class="p-kv"><b>Collection</b><span>'+esc(f.moneyIn)+'</span></div>'+
-   '</div>'+
-   '<h4 class="ph">File exchange schedule (AST)</h4>'+
-   '<table class="dt"><thead><tr><th>File</th><th>Direction</th><th>Timing</th><th>Channel</th><th>Note</th></tr></thead><tbody>'+sched+'</tbody></table>'+
-   '<h4 class="ph">Business rules</h4><ul class="plain">'+rules+'</ul>'+
-   '<h4 class="ph">Gotchas — what trips people up</h4><ul class="plain gotcha">'+got+'</ul>'+
-   '<h4 class="ph">Contacts</h4>'+cts+
-   '<h4 class="ph">Pending items</h4><ul class="plain">'+pend+'</ul>'+
-   '<div class="src"><b>Sources:</b> '+srcs+'</div></div>';
+  document.querySelectorAll('.fpick button').forEach(b=>b.classList.toggle('active', b.dataset.f===code));
+  const f=F(code); if(!f) return;
+  const kv=[
+    ['Currencies', f.ccy.join(' · ')+(f.ccyNote?'<br><small>'+esc(f.ccyNote)+'</small>':'')],
+    ['Funding speed', esc(f.speed)],
+    ['Programs', esc(f.programs)],
+    ['Channel', esc(f.channel)],
+    ['Benchmark', esc(f.benchmark)],
+    ['Margin / fees', esc(f.margin)+(f.basis?'<br><small>'+esc(f.basis)+'</small>':'')],
+    ['Disbursement', esc(f.moneyOut)],
+    ['Collection', esc(f.moneyIn)],
+  ].map(r=>'<div><div class="kv-k">'+r[0]+'</div><div class="kv-v">'+r[1]+'</div></div>').join('');
+  const sched=f.schedule.map(r=>'<tr><td class="cell-strong">'+esc(r[0])+'</td><td class="'+(r[1]==='out'?'dir-out':'dir-in')+'">'+(r[1]==='out'?'Manafa → Funder':'Funder → Manafa')+'</td><td class="mono">'+esc(r[2])+'</td><td>'+esc(r[3])+'</td><td>'+esc(r[4])+'</td></tr>').join('');
+  const rules=f.rules.map(x=>'<li>'+esc(x)+'</li>').join('');
+  const got=f.gotchas.map(x=>'<li>'+esc(x)+'</li>').join('');
+  const pend=f.pending.map(x=>'<li>'+esc(x)+'</li>').join('');
+  const srcs=f.sources.map(s=>s[1]?'<a class="link" href="'+s[1]+'" target="_blank" rel="noopener">'+esc(s[0])+'</a>':esc(s[0])).join(' · ');
+  const eligCallout = code==='SIDF' ? '<div class="card"><div class="card-body"><div class="callout"><h4>'+svg('<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/>')+'Eligibility criteria — both gates must pass</h4><ul class="plain"><li><b>Gate 1 — License:</b> the borrower’s working license must be Industrial, Logistics, Mining, or Generation (energy).</li><li><b>Gate 2 — ISIC:</b> the borrower’s ISIC activity must be on SIDF’s shared ISIC list.</li><li>When both gates pass and the wallet covers the invoice, the pricing engine auto-includes SIDF. The funder itself is <b>open 24/7</b>.</li></ul></div></div></div>' : '';
+  $('profileHost').innerHTML =
+      '<div class="card"><div class="card-body" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+        + '<span class="fc-logo" style="height:28px">'+logoImg(code,28)+'</span>'
+        + '<div style="flex:1;min-width:180px"><div style="font-size:16px;font-weight:600">'+esc(f.name)+'</div><div style="font-size:12.5px;color:var(--muted-foreground);margin-top:2px">'+esc(f.programs)+' · '+esc(f.channel)+'</div></div>'
+        + '<span class="badge" data-tone="'+(f.status==='live'?'solid':'muted')+'"><span class="bdot"></span>'+esc(f.statusLabel)+'</span>'
+      + '</div></div>'
+      + '<div class="card"><div class="card-head">Overview</div><div class="card-body"><div class="kv">'+kv+'</div></div></div>'
+      + eligCallout
+      + '<div class="card"><div class="card-head">File exchange schedule <span style="font-weight:400;color:var(--muted-foreground);font-size:12px">AST</span></div><div class="table-scroll"><table class="tbl"><thead><tr><th>File</th><th>Direction</th><th>Timing</th><th>Channel</th><th>Note</th></tr></thead><tbody>'+sched+'</tbody></table></div></div>'
+      + '<div class="grid2"><div class="card"><div class="card-head">Business rules</div><div class="card-body"><ul class="plain">'+rules+'</ul></div></div>'
+        + '<div class="card"><div class="card-head">Gotchas — what trips people up</div><div class="card-body"><ul class="plain gotcha">'+got+'</ul></div></div></div>'
+      + '<div class="grid2"><div class="card"><div class="card-head">Contacts</div><div class="card-body"><div class="kv" style="grid-template-columns:1fr 1fr"><div><div class="kv-k">Manafa side</div><div class="kv-v mono" style="font-family:\'Geist Mono\',monospace">'+f.contacts.manafa.map(esc).join('<br>')+'</div></div><div><div class="kv-k">Funder side</div><div class="kv-v mono" style="font-family:\'Geist Mono\',monospace">'+f.contacts.funder.map(esc).join('<br>')+'</div></div></div></div></div>'
+        + '<div class="card"><div class="card-head">Pending items</div><div class="card-body"><ul class="plain">'+pend+'</ul></div></div></div>'
+      + '<div class="card"><div class="card-body src-line"><b>Sources:</b> '+srcs+'</div></div>';
 }
-function renderFsel(){
-  $("fsel").innerHTML = FUNDERS.map(f=>'<button class="fbtn" data-f="'+f.code+'">'+logoImg(f.code,16)+'<b>'+f.code+'</b></button>').join("");
-  document.querySelectorAll(".fbtn").forEach(b=>b.onclick=()=>selectFunder(b.dataset.f));
-  selectFunder(curFunder);
-}
+window.after_profiles = function(){ selectFunder(curFunder); };
 
-/* ── reference ── */
+/* —— Reference —— */
 function limitTable(title,obj){
-  const head='<tr><th>Funder</th>'+LIMITS.months.map(m=>'<th style="text-align:right">'+m+'</th>').join("")+'<th style="text-align:right">Phase</th></tr>';
-  const rows=obj.rows.map(r=>{const s=r[1]+r[2]+r[3];return '<tr><td>'+r[0]+'</td><td class="num">'+r[1]+'M</td><td class="num">'+r[2]+'M</td><td class="num">'+r[3]+'M</td><td class="num">'+s+'M</td></tr>';}).join("");
-  const tot='<tr class="total"><td>Total</td>'+obj.total.map(t=>'<td class="num">'+t+'M</td>').join("")+'<td class="num">'+obj.total.reduce((a,b)=>a+b,0)+'M</td></tr>';
-  return '<div class="ref-card"><h3>'+title+'</h3><div class="limit-note">Configured SAMA limits per EMQ-5493 — <b>not</b> live utilization. This tool has no production connection.</div>'+
-    '<table class="dt">'+head+rows+tot+'</table></div>';
+  const hd='<tr><th>Funder</th>'+LIMITS.months.map(m=>'<th class="num">'+m+'</th>').join('')+'<th class="num">Phase</th></tr>';
+  const rows=obj.rows.map(r=>{const s=r[1]+r[2]+r[3];return '<tr><td class="cell-strong">'+esc(r[0])+'</td><td class="num">'+r[1]+'M</td><td class="num">'+r[2]+'M</td><td class="num">'+r[3]+'M</td><td class="num">'+s+'M</td></tr>';}).join('');
+  const tot='<tr style="font-weight:600"><td>Total</td>'+obj.total.map(t=>'<td class="num">'+t+'M</td>').join('')+'<td class="num">'+obj.total.reduce((a,b)=>a+b,0)+'M</td></tr>';
+  return '<div class="card"><div class="card-head">'+title+'</div><div class="table-scroll"><table class="tbl"><thead>'+hd+'</thead><tbody>'+rows+tot+'</tbody></table></div><div class="tbl-note">Configured SAMA limits per EMQ-5493 — <b>not</b> live utilization. This tool has no production connection.</div></div>';
 }
-function renderReference(){
+VIEWS.reference = ()=>{
   const wmRows = {
-    JPM:["c-closed|Closed — Sunday flow coming (EMQ-5518)","c-open|Overnight → 11:30 · FR2 11:30–15:00 · gap 15–17 · evening 17:00→ (T−1)","c-open|Same pattern","c-open|Same pattern","c-open|Same pattern + Thu-evening dispatch assumption","c-closed|Closed (confirm — OI-2)","c-closed|Closed"],
-    BNPP:["c-queue|Queues → Mon 09:00 (OI-1)","c-open|09:00–10:45 live · after → next-day 09:00","c-open|Same","c-open|Same","c-reject|Live to 10:45 · then REJECTS (3-day)","c-queue|→ Mon 09:00","c-queue|→ Mon 09:00"],
+    JPM:["c-open|Sun carryover → Mon 11:30 (T−1)","c-open|Overnight→11:30 · FR2 11:30–16:30 · gap 16:30–17 · evening 17:00→ (T−1)","c-open|Same pattern","c-open|Same pattern","c-open|Same + evening dispatch","c-closed|Closed (rate retained)","c-closed|Closed"],
+    BNPP:["c-queue|Queues → Mon 09:00","c-open|09:00–10:45 live · after → next-day 09:00","c-open|Same","c-open|Same","c-reject|Live to 10:45 · then REJECTS (3-day)","c-queue|→ Mon 09:00","c-queue|→ Mon 09:00"],
     SMBC:["c-notlive|No routing","c-notlive|Batch → 13:00 · fund Wed (tri-cal)","c-notlive|Batch → 13:00 · fund Thu","c-notlive|Batch → 13:00 · fund Fri","c-notlive|Off (3-day rule)","c-notlive|Off","c-notlive|No routing"],
     SNB:["c-open|09:00 & 13:00 files · same-day","c-open|Same","c-open|Same","c-open|Same","c-open|Same · PM → Sun","c-queue|→ Sun 09:00","c-queue|→ Sun 09:00"],
     SAB:["c-open|09:00 & 14:00 batches · same-day","c-open|Same","c-open|Same","c-open|Same","c-open|Same · PM → Sun","c-queue|→ Sun 09:00","c-queue|→ Sun 09:00"],
-    SIDF:["c-elig|Wallet — eligibility gates","c-elig|Same","c-elig|Same","c-elig|Same","c-elig|Same","c-closed|Platform weekend","c-closed|Platform weekend"],
+    SIDF:["c-open|Open 24/7 · eligibility gates","c-open|Open 24/7","c-open|Open 24/7","c-open|Open 24/7","c-open|Open 24/7","c-open|Open 24/7","c-open|Open 24/7"],
   };
-  const wmHead='<tr><th>Funder</th>'+DOWN.map(d=>'<th>'+d+'</th>').join("")+'</tr>';
-  const wmBody=FUNDERS.map(f=>'<tr><td style="font-weight:600">'+f.code+'</td>'+wmRows[f.code].map(c=>{const [cl,tx]=c.split("|");return '<td class="'+cl+'">'+tx+'</td>';}).join("")+'</tr>').join("");
+  const wmHead='<tr><th>Funder</th>'+DOWN.map(d=>'<th>'+d+'</th>').join('')+'</tr>';
+  const wmBody=FUNDERS.map(f=>'<tr><td class="c-code">'+f.code+'</td>'+wmRows[f.code].map(c=>{const i=c.indexOf('|');return '<td class="'+c.slice(0,i)+'">'+c.slice(i+1)+'</td>';}).join('')+'</tr>').join('');
   const hols=Object.entries(HOLIDAYS).map(([k,c])=>{
-    const rows=Object.entries(c.dates).map(([d,h])=>'<div class="hol"><span class="hd">'+d.slice(5)+'</span><span'+(h.approx?' class="approx"':'')+'>'+esc(h.n)+(h.approx?" ≈":"")+'</span></div>').join("");
-    return '<div class="ref-card"><h3>'+esc(c.label)+'</h3><div class="note">2026 non-working days'+(k==="KSA"?" (weekend Fri–Sat everywhere on this page)":"")+'</div>'+rows+'</div>';
-  }).join("");
-  const gloss='<div class="ref-card wide"><h3>Glossary</h3><div class="note">The vocabulary that causes the most Slack threads.</div><table class="dt">'+
-    GLOSSARY.map(g=>'<tr><td style="font-weight:600;white-space:nowrap">'+esc(g[0])+'</td><td>'+esc(g[1])+'</td></tr>').join("")+'</table></div>';
-  $("refHost").innerHTML =
-    limitTable("SAR limits — "+CONFIG.limitsQuarter,LIMITS.sar)+
-    limitTable("USD limits — "+CONFIG.limitsQuarter,LIMITS.usd)+
-    '<div class="ref-card wide"><h3>Week at a glance</h3><div class="note">'+esc(LIMITS.newSuppliers)+' Amber assumptions carry their OI reference.</div>'+
-    '<div style="overflow-x:auto"><table class="dt wm" style="min-width:860px">'+wmHead+wmBody+'</table></div></div>'+
-    hols+gloss;
-}
+    const rows=Object.entries(c.dates).map(([d,h])=>'<div class="hol-row"><span class="hd">'+d.slice(5)+'</span><span'+(h.approx?' class="approx"':'')+'>'+esc(h.n)+(h.approx?' ≈':'')+'</span></div>').join('');
+    return '<div class="card"><div class="card-head" style="font-size:13px">'+esc(c.label)+'</div><div class="card-body"><div class="tbl-note" style="padding:0 0 8px;background:none;border:none">2026 non-working days'+(k==='KSA'?' (weekend Fri–Sat everywhere on this page)':'')+'</div>'+rows+'</div></div>';
+  }).join('');
+  const gloss=GLOSSARY.map(g=>'<tr><td class="cell-strong" style="white-space:nowrap;vertical-align:top">'+esc(g[0])+'</td><td>'+esc(g[1])+'</td></tr>').join('');
+  return head('Reference','Configured limits, the weekly grid, holiday calendars, and the glossary.')
+    + '<div class="grid2">'+limitTable('SAR limits — '+esc(CONFIG.limitsQuarter),LIMITS.sar)+limitTable('USD limits — '+esc(CONFIG.limitsQuarter),LIMITS.usd)+'</div>'
+    + '<div class="card"><div class="card-head">Week at a glance</div><div class="card-body"><div class="tbl-note" style="padding:0 0 10px;background:none;border:none">'+esc(LIMITS.newSuppliers)+'</div><div class="table-scroll"><table class="tbl wm">'+'<thead>'+wmHead+'</thead><tbody>'+wmBody+'</tbody></table></div></div></div>'
+    + '<div class="card"><div class="card-head">Glossary</div><div class="card-body" style="padding:0"><table class="tbl"><tbody>'+gloss+'</tbody></table></div></div>'
+    + '<div style="height:14px"></div><div class="grid2" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">'+hols+'</div>';
+};
 
-/* ── open items ── */
-function renderOI(){
-  $("oiCount").textContent="("+OPEN_ITEMS.length+")";
-  $("oiHost").innerHTML = OPEN_ITEMS.map(o=>
-   '<div class="oi"><h3><span class="oid">'+o.id+'</span>'+esc(o.funder)+' — '+esc(o.title)+'</h3>'+
-   '<p><b>What the sources say:</b> '+esc(o.says)+'</p>'+
-   '<div class="assume"><b>Tool currently assumes:</b> '+esc(o.assume)+'</div>'+
-   '<p style="color:var(--mut)"><b>Next step:</b> '+esc(o.owner)+'</p></div>').join("");
-}
+/* —— Open Items —— */
+VIEWS.openitems = ()=>{
+  const items=OPEN_ITEMS.map(o=>'<div class="oi"><h3><span class="oid">'+esc(o.id)+'</span>'+esc(o.funder)+' — '+esc(o.title)+'</h3>'
+    + '<p><b>What the sources say:</b> '+esc(o.says)+'</p>'
+    + '<div class="assume"><b>Tool currently assumes:</b> '+esc(o.assume)+'</div>'
+    + '<p class="owner"><b>Next step:</b> '+esc(o.owner)+'</p></div>').join('');
+  return head('Open Items','Where the documentation disagrees or is silent. Each item states what the sources say and what this tool currently assumes. Resolving these makes the checker exact.')
+    + '<div class="card" style="margin-bottom:14px"><div class="card-body" style="display:flex;gap:12px;align-items:flex-start">'
+      + '<span style="color:var(--st-open)">'+svg('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/>')+'</span>'
+      + '<div style="font-size:13px;line-height:1.6"><b>5 items resolved on '+esc(CONFIG.dataAsOf)+'.</b> BNPP Sunday roll-to-Monday (all currencies), JPM all-day windows &amp; SAR (EMQ-5562), JPM Sunday carryover (EMQ-5518), and SMBC WHT (N/A) are now confirmed. Only the two SNB items below remain open.</div>'
+    + '</div></div>'
+    + items;
+};
 
-/* ── tabs & wiring ── */
-function switchTab(id){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.v===id));
-  document.querySelectorAll("section.view").forEach(s=>s.classList.toggle("active",s.id==="v-"+id));
-  if(id==="timeline")renderTimeline();
-}
-document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.v));
+/* ════════ SHELL BEHAVIOUR ════════ */
+var mq = window.matchMedia('(max-width: 767px)');
+function toggleSidebar(){ var s=$('shell');
+  if(mq.matches){ var o=s.dataset.mobileOpen==='true'; s.dataset.mobileOpen=String(!o); $('mobile-overlay').classList.toggle('open',!o); }
+  else { s.dataset.collapsed = s.dataset.collapsed==='true'?'false':'true'; } }
+function closeMobile(){ var s=$('shell'); if(s){ s.dataset.mobileOpen='false'; } var o=$('mobile-overlay'); if(o) o.classList.remove('open'); }
+mq.addEventListener('change', closeMobile);
+function toggleSub(btn,id){ var o=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded',String(!o));
+  var el=$(id); el.style.maxHeight = o? '0' : el.scrollHeight+'px'; el.classList.toggle('open',!o); }
+function closeMenus(){ document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open')); }
+function toggleTheme(){ var dark=document.documentElement.classList.toggle('dark'); try{localStorage.setItem('fct-theme',dark?'dark':'light');}catch(e){}
+  var i=$('theme-icon'); if(i) i.innerHTML = dark ? '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'
+    : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>'; }
+function openNotes(){ $('notes-panel').classList.add('open'); $('notes-overlay').classList.add('open'); }
+function closeNotes(){ $('notes-panel').classList.remove('open'); $('notes-overlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e){ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='b'){ e.preventDefault(); toggleSidebar(); } if(e.key==='Escape'){ closeNotes(); closeMobile(); } });
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show')); setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),220); },2600); }
 
-/* init */
-document.getElementById("manafaLogo").src="data:image/png;base64,"+LOGOS.MANAFA.b64;
-$("asOf").textContent="Data as of "+CONFIG.dataAsOf;
-$("ftAsOf").textContent=CONFIG.dataAsOf;
-(function init(){
+/* ════════ CLOCK ════════ */
+function tickClock(){
   const n=ksaNow();
-  $("inDate").value=dkey(n); $("inTime").value=pad(n.hh)+":"+pad(n.mm);
-  $("tlDate").value=dkey(n);
-  tickClock(); renderChips(); renderCards(); renderFsel(); renderReference(); renderOI(); renderTimeline();
-  setInterval(tickClock,1000);
-  setInterval(()=>{renderChips(); if(liveMode){setSelToNowSilent();}},30000);
-})();
-function setSelToNowSilent(){const n=ksaNow();$("inDate").value=dkey(n);$("inTime").value=pad(n.hh)+":"+pad(n.mm);renderCards();}
-$("btnNow").onclick=setSelToNow;
-["inDate","inTime"].forEach(id=>$(id).addEventListener("input",()=>{liveMode=false;$("livePill").style.display="none";renderCards();}));
-$("inCcy").addEventListener("change",()=>{renderCards();});
-$("tlDate").addEventListener("input",renderTimeline);
-$("tlToday").onclick=()=>{const n=ksaNow();$("tlDate").value=dkey(n);renderTimeline();};
-$("livePill").style.display="inline-flex";
+  $('clockT').innerHTML = pad(n.hh)+':'+pad(n.mm)+'<small>:'+pad(n.ss)+'</small>';
+  $('clockD').textContent = DOWN[dow(n)]+' '+n.d+' '+MON[n.m-1]+' · AST';
+}
 
+/* ════════ INIT ════════ */
+(function init(){
+  try{ if(localStorage.getItem('fct-theme')==='dark'){ document.documentElement.classList.add('dark'); var ti=$('theme-icon'); if(ti) ti.innerHTML='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'; } }catch(e){}
+  if(LOGOS.MANAFA) $('brandLogo').src='data:image/png;base64,'+LOGOS.MANAFA.b64;
+  const na=$('notesAsOf'); if(na) na.textContent=CONFIG.dataAsOf;
+  const n=ksaNow(); STATE.date={y:n.y,m:n.m,d:n.d}; STATE.mins=n.hh*60+n.mm;
+  buildNav();
+  tickClock(); setInterval(tickClock,1000);
+  go('checker');
+  setInterval(()=>{ if(STATE.live){ const n2=ksaNow(); STATE.date={y:n2.y,m:n2.m,d:n2.d}; STATE.mins=n2.hh*60+n2.mm;
+    if(currentView==='checker'){ const di=$('inDate'), ti=$('inTime'); if(di) di.value=dkey(STATE.date); if(ti) ti.value=pad(n2.hh)+':'+pad(n2.mm); renderCards(); } } }, 30000);
+})();
 </script>
 </body>
 </html>
